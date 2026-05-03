@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            width: 842px;
+            height: 595px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .certificate {
+            width: 800px;
+            height: 560px;
+            border: 12px solid #1a3c5e;
+            padding: 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 2px solid #c9a84c;
+            pointer-events: none;
+        }
+
+        .org-name {
+            font-size: 13px;
+            letter-spacing: 4px;
+            color: #1a3c5e;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+        }
+
+        .cert-title {
+            font-size: 36px;
+            color: #1a3c5e;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+
+        .cert-subtitle {
+            font-size: 13px;
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: Arial, sans-serif;
+        }
+
+        .divider {
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #c9a84c, transparent);
+        }
+
+        .presented-to {
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .student-name {
+            font-size: 42px;
+            color: #1a3c5e;
+            font-weight: bold;
+            border-bottom: 2px solid #c9a84c;
+            padding-bottom: 6px;
+            min-width: 300px;
+        }
+
+        .description {
+            font-size: 13px;
+            color: #555;
+            max-width: 500px;
+            line-height: 1.8;
+        }
+
+        .details {
+            font-size: 12px;
+            color: #777;
+            font-family: Arial, sans-serif;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .signature-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .signature-line {
+            width: 150px;
+            height: 1px;
+            background: #333;
+        }
+
+        .signature-label {
+            font-size: 10px;
+            color: #666;
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .cert-id {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 9px;
+            color: #bbb;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate">
+
+        <div class="org-name">Tokimi Foundation</div>
+        <div class="cert-title">Certificate</div>
+        <div class="cert-subtitle">of Completion</div>
+
+        <div class="divider"></div>
+
+        <div class="presented-to">This certificate is proudly presented to</div>
+
+        <div class="student-name">{{first_name}} {{last_name}}</div>
+
+        <div class="description">
+            For successfully completing the Computer Literacy Program at Tokimi Foundation,
+            demonstrating dedication and commitment to acquiring essential digital skills.
+        </div>
+
+        <div class="details">
+            Batch: {{batch}} &nbsp;|&nbsp; Year: {{year}} &nbsp;|&nbsp; Date: {{date}}
+        </div>
+
+        <div class="signatures">
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-label">Program Director</div>
+            </div>
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-label">Executive Director</div>
+            </div>
+        </div>
+
+        <div class="cert-id">CERT-TKF-{{id}}-{{year}}</div>
+    </div>
+</body>
+</html>

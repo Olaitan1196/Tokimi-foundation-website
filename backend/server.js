@@ -1,0 +1,57 @@
+// 1. Import the tools we installed
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Import routes
+import enrollmentRoutes from './routes/enrollment.js';
+import scholarshipRoutes from './routes/scholarship.js';
+import newsRoutes        from './routes/news.js';
+import staffRoutes       from './routes/staff.js';
+import generatorRoutes   from './routes/generator.js';
+
+// 2. Load environment variables
+dotenv.config();
+
+// 3. Import database connection
+import './config/db.js';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
+
+// 4. Create our Express application
+const app = express();
+
+// 5. Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// ─────────────────────────────────────────
+// Serve uploaded images as static files
+// This means images can be accessed via URL
+// e.g. http://localhost:5000/uploads/news/photo.jpg
+// ─────────────────────────────────────────
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 6. Test route
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Welcome to Tokimi Foundation API!',
+        status: 'Server is running successfully ✅'
+    });
+});
+
+// Register routes
+app.use('/api/enrollment', enrollmentRoutes);
+app.use('/api/scholarship',  scholarshipRoutes);
+app.use('/api/news',         newsRoutes);
+app.use('/api/staff',        staffRoutes);
+app.use('/api/generate',    generatorRoutes);
+// 7. Define port
+const PORT = process.env.PORT || 5000;
+
+// 8. Start server
+app.listen(PORT, () => {
+    console.log(`✅ Tokimi Foundation server is running on port ${PORT}`);
+});

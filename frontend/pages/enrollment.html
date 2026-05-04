@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Enrollment — Tokimi Foundation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/enrollment.css">
+    <link rel="stylesheet" href="../css/index.css">
+
+    <script src="../js/main.js" defer></script>
+    <script src="../js/enrollment.js" defer></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">
+        <div class="logo-icon">T</div>
+        <div class="logo-words">
+            <span class="brand">Tokimi <span>Foundation</span></span>
+            <span class="script">keeping dreams alive</span>
+        </div>
+    </div>
+    <div class="nav-links" id="navLinks">
+        <a href="../index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="courses.html">Courses</a>
+        <a href="news.html">News</a>
+        <a href="staff.html">Staff</a>
+        <a href="contact.html">Contact</a>
+        <a href="enrollment.html" class="nav-cta active">Enroll Now</a>
+    </div>
+    <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+
+<!-- PAGE BANNER -->
+<section class="page-banner">
+    <div class="page-banner-content">
+        <span class="banner-script">Join Us Today</span>
+        <h1>Student Enrollment</h1>
+        <p>Fill in the form below to enroll in the Tokimi Foundation computer literacy program. All fields marked with * are required.</p>
+    </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="section">
+    <div class="enrollment-layout">
+
+        <!-- LEFT — ENROLLMENT FORM -->
+        <div class="form-panel">
+            <div class="form-panel-header">
+                <h2>📋 Enrollment Form</h2>
+                <p>Complete all required fields to register a new student</p>
+            </div>
+
+            <!-- Alert container -->
+            <div id="alertContainer"></div>
+
+            <form id="enrollmentForm" novalidate>
+
+                <!-- Personal Information -->
+                <div class="form-section-title">
+                    <span class="form-section-icon">👤</span>
+                    Personal Information
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            placeholder="e.g. Amina"
+                            required
+                        />
+                        <span class="field-error" id="err-first_name"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            placeholder="e.g. Bello"
+                            required
+                        />
+                        <span class="field-error" id="err-last_name"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="e.g. amina@email.com"
+                        />
+                        <span class="field-error" id="err-email"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="e.g. 08012345678"
+                        />
+                    </div>
+                </div>
+
+                <!-- Program Information -->
+                <div class="form-section-title">
+                    <span class="form-section-icon">📚</span>
+                    Program Information
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="batch">Batch *</label>
+                        <select id="batch" name="batch" required>
+                            <option value="">-- Select Batch --</option>
+                            <option value="Batch-A">Batch A</option>
+                            <option value="Batch-B">Batch B</option>
+                            <option value="Batch-C">Batch C</option>
+                            <option value="Batch-D">Batch D</option>
+                            <option value="Batch-E">Batch E</option>
+                        </select>
+                        <span class="field-error" id="err-batch"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Enrollment Year *</label>
+                        <select id="year" name="year" required>
+                            <option value="">-- Select Year --</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                        <span class="field-error" id="err-year"></span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-orange submit-btn" id="submitBtn">
+                    🎓 Enroll Student
+                </button>
+
+            </form>
+        </div>
+
+        <!-- RIGHT — STUDENT LIST -->
+        <div class="list-panel">
+            <div class="list-panel-header">
+                <h2>👨‍🎓 Enrolled Students</h2>
+                <p>All students currently enrolled in the program</p>
+            </div>
+
+            <!-- Filter & Search -->
+            <div class="list-controls">
+                <div class="list-search">
+                    <span>🔍</span>
+                    <input
+                        type="text"
+                        id="studentSearch"
+                        placeholder="Search students..."
+                    />
+                </div>
+                <div class="list-filters">
+                    <select id="batchFilter">
+                        <option value="">All Batches</option>
+                        <option value="Batch-A">Batch A</option>
+                        <option value="Batch-B">Batch B</option>
+                        <option value="Batch-C">Batch C</option>
+                        <option value="Batch-D">Batch D</option>
+                        <option value="Batch-E">Batch E</option>
+                    </select>
+                    <select id="yearFilter">
+                        <option value="">All Years</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Export Button -->
+            <div class="export-bar">
+                <span id="studentCount" class="student-count">
+                    Loading...
+                </span>
+                <button class="btn btn-outline-blue btn-sm" onclick="exportStudents()">
+                    📤 Export CSV
+                </button>
+            </div>
+
+            <!-- Student Table -->
+            <!--
+                📌 EMPTY on purpose.
+                Student rows are fetched live from the backend.
+                Nothing is hardcoded here.
+            -->
+            <div class="table-wrapper" id="tableWrapper">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Loading students...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <span class="fname">Tokimi <span>Foundation</span></span>
+            <span class="ftag">keeping dreams alive</span>
+            <p>A not-for-profit organization dedicated to empowering senior secondary students through quality computer literacy education.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="../index.html">🏠 Home</a></li>
+                <li><a href="about.html">ℹ️ About Us</a></li>
+                <li><a href="courses.html">📚 Courses</a></li>
+                <li><a href="news.html">📰 News</a></li>
+                <li><a href="staff.html">👥 Our Staff</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Programs</h4>
+            <ul>
+                <li><a href="courses.html">💻 Hardware & Software</a></li>
+                <li><a href="courses.html">📝 Microsoft Word</a></li>
+                <li><a href="courses.html">📊 Microsoft Excel</a></li>
+                <li><a href="courses.html">📽️ PowerPoint</a></li>
+                <li><a href="courses.html">🌐 Internet Skills</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <div class="contact-row">
+                <span class="ci">📍</span>
+                <span>123 Foundation Road,<br>Lagos, Nigeria</span>
+            </div>
+            <div class="contact-row">
+                <span class="ci">📞</span>
+                <span>+234 800 000 0000</span>
+            </div>
+            <div class="contact-row">
+                <span class="ci">📧</span>
+                <span>info@tokimifoundation.org</span>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2025 Tokimi Foundation. All rights reserved.</span>
+        <span>Built with <span class="heart">♥</span> for students everywhere</span>
+    </div>
+</footer>
+
+<!-- EDIT STUDENT MODAL -->
+<div class="modal-overlay" id="editModal" style="display:none;">
+    <div class="modal" id="editModalContent">
+        <!-- Populated dynamically -->
+    </div>
+</div>
+
+</body>
+</html>

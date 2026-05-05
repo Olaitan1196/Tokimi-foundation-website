@@ -11,6 +11,7 @@ import scholarshipRoutes from './routes/scholarship.js';
 import newsRoutes        from './routes/news.js';
 import staffRoutes       from './routes/staff.js';
 import generatorRoutes   from './routes/generator.js';
+import authRoutes        from './routes/auth.js';
 
 // 2. Load environment variables
 dotenv.config();
@@ -48,6 +49,7 @@ app.use('/api/scholarship',  scholarshipRoutes);
 app.use('/api/news',         newsRoutes);
 app.use('/api/staff',        staffRoutes);
 app.use('/api/generate',    generatorRoutes);
+app.use('/api/auth',        authRoutes);
 // 7. Define port
 const PORT = process.env.PORT || 5000;
 

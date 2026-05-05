@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — Tokimi Foundation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+
+    <script src="../js/admin.js" defer></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     LOGIN SCREEN
+     Shown when admin is not logged in
+══════════════════════════════════ -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="login-logo-icon">T</div>
+            <div>
+                <span class="login-brand">Tokimi <span>Foundation</span></span>
+                <span class="login-script">Admin Panel</span>
+            </div>
+        </div>
+
+        <h2>Welcome Back</h2>
+        <p>Enter your admin password to access the dashboard</p>
+
+        <div id="loginAlert"></div>
+
+        <form id="loginForm" novalidate>
+            <div class="login-form-group">
+                <label>Admin Password</label>
+                <div class="password-input-wrap">
+                    <input
+                        type="password"
+                        id="adminPassword"
+                        placeholder="Enter admin password"
+                        required
+                    />
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        id="togglePassword">
+                        👁️
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-orange login-btn" id="loginBtn">
+                🔐 Login to Dashboard
+            </button>
+        </form>
+
+        <a href="../index.html" class="back-link">← Back to Website</a>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ADMIN DASHBOARD
+     Shown after successful login
+══════════════════════════════════ -->
+<div class="admin-layout" id="adminDashboard" style="display:none;">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">T</div>
+            <div>
+                <span class="sidebar-brand">Tokimi</span>
+                <span class="sidebar-sub">Admin Panel</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="#" class="sidebar-link active" data-section="dashboard">
+                <span>📊</span> Dashboard
+            </a>
+
+            <div class="nav-section-label">Manage</div>
+            <a href="#" class="sidebar-link" data-section="news">
+                <span>📰</span> News Feed
+            </a>
+            <a href="#" class="sidebar-link" data-section="students">
+                <span>👨‍🎓</span> Students
+            </a>
+            <a href="#" class="sidebar-link" data-section="scholarships">
+                <span>🏆</span> Scholarships
+            </a>
+            <a href="#" class="sidebar-link" data-section="staff">
+                <span>👨‍💼</span> Staff
+            </a>
+
+            <div class="nav-section-label">Generate</div>
+            <a href="#" class="sidebar-link" data-section="generator">
+                <span>🪪</span> ID & Certificates
+            </a>
+
+            <div class="nav-section-label">Account</div>
+            <a href="#" class="sidebar-link logout-link" id="logoutBtn">
+                <span>🚪</span> Logout
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span>Tokimi Foundation</span>
+            <span class="sidebar-version">v1.0.0</span>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="admin-main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+            <div class="topbar-title" id="topbarTitle">Dashboard</div>
+            <div class="topbar-right">
+                <span class="admin-badge">👤 Admin</span>
+                <a href="../index.html" class="btn btn-outline-blue btn-sm"
+                    target="_blank">
+                    🌐 View Site
+                </a>
+            </div>
+        </header>
+
+        <!-- SECTIONS — only one shown at a time -->
+        <div class="admin-content">
+
+            <!-- ── DASHBOARD ── -->
+            <section class="admin-section active" id="section-dashboard">
+                <div class="section-header-row">
+                    <div>
+                        <h2>Dashboard Overview</h2>
+                        <p>Welcome back! Here is what is happening at Tokimi Foundation.</p>
+                    </div>
+                    <button class="btn btn-outline-blue btn-sm"
+                        onclick="refreshDashboard()">
+                        🔄 Refresh
+                    </button>
+                </div>
+
+                <!-- Live Stats -->
+                <div class="dash-stats" id="dashStats">
+                    <div class="loading-state" style="grid-column:1/-1;">
+                        <div class="spinner"></div>
+                        <p>Loading statistics...</p>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dash-grid">
+                    <!-- Recent Students -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>👨‍🎓 Recent Enrollments</h3>
+                            <a href="#" onclick="switchSection('students')"
+                                class="view-all">View All →</a>
+                        </div>
+                        <div id="recentStudents">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent News -->
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>📰 Recent News</h3>
+                            <a href="#" onclick="switchSection('news')"
+                                class="view-all">View All →</a>
+                        </div>
+                        <div id="recentNews">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── NEWS MANAGEMENT ── -->
+            <section class="admin-section" id="section-news">
+                <div class="section-header-row">
+                    <div>
+                        <h2>📰 News Feed Management</h2>
+                        <p>Create, edit and delete news articles</p>
+                    </div>
+                    <button class="btn btn-orange btn-sm"
+                        onclick="openNewsModal()">
+                        ➕ Post New Article
+                    </button>
+                </div>
+
+                <div id="newsAlertContainer"></div>
+
+                <!--
+                    📌 EMPTY — articles fetched from backend
+                -->
+                <div class="admin-table-wrapper" id="newsTableWrapper">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading articles...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── STUDENTS ── -->
+            <section class="admin-section" id="section-students">
+                <div class="section-header-row">
+                    <div>
+                        <h2>👨‍🎓 Student Enrollment</h2>
+                        <p>View and manage all enrolled students</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <a href="enrollment.html"
+                            class="btn btn-orange btn-sm">
+                            ➕ Enroll Student
+                        </a>
+                        <button class="btn btn-outline-blue btn-sm"
+                            onclick="exportStudents()">
+                            📤 Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Batch Filter -->
+                <div class="admin-filters">
+                    <select id="adminBatchFilter" onchange="loadAdminStudents()">
+                        <option value="">All Batches</option>
+                        <option value="Batch-A">Batch A</option>
+                        <option value="Batch-B">Batch B</option>
+                        <option value="Batch-C">Batch C</option>
+                        <option value="Batch-D">Batch D</option>
+                        <option value="Batch-E">Batch E</option>
+                    </select>
+                    <select id="adminYearFilter" onchange="loadAdminStudents()">
+                        <option value="">All Years</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+
+                <!--
+                    📌 EMPTY — students fetched from backend
+                -->
+                <div class="admin-table-wrapper" id="studentsTableWrapper">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading students...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── SCHOLARSHIPS ── -->
+            <section class="admin-section" id="section-scholarships">
+                <div class="section-header-row">
+                    <div>
+                        <h2>🏆 Scholarships & Grants</h2>
+                        <p>View and manage all scholarship awards</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <a href="scholarship.html"
+                            class="btn btn-orange btn-sm">
+                            ➕ Add Award
+                        </a>
+                        <button class="btn btn-outline-blue btn-sm"
+                            onclick="exportScholarships()">
+                            📤 Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!--
+                    📌 EMPTY — records fetched from backend
+                -->
+                <div class="admin-table-wrapper" id="scholarshipsTableWrapper">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading records...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── STAFF ── -->
+            <section class="admin-section" id="section-staff">
+                <div class="section-header-row">
+                    <div>
+                        <h2>👨‍💼 Staff Management</h2>
+                        <p>View and manage all staff members</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-orange btn-sm"
+                            onclick="openStaffModal()">
+                            ➕ Add Staff
+                        </button>
+                        <button class="btn btn-outline-blue btn-sm"
+                            onclick="exportStaff()">
+                            📤 Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div id="staffAlertContainer"></div>
+
+                <!--
+                    📌 EMPTY — staff fetched from backend
+                -->
+                <div class="admin-table-wrapper" id="staffTableWrapper">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Loading staff...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── ID CARD & CERTIFICATE GENERATOR ── -->
+            <section class="admin-section" id="section-generator">
+                <div class="section-header-row">
+                    <div>
+                        <h2>🪪 ID Card & Certificate Generator</h2>
+                        <p>Generate ID cards and certificates for students and staff</p>
+                    </div>
+                </div>
+
+                <div class="generator-grid">
+
+                    <!-- Student ID Card -->
+                    <div class="generator-card">
+                        <div class="generator-icon blue">🪪</div>
+                        <h3>Student ID Card</h3>
+                        <p>Generate a professional ID card for any enrolled student.</p>
+                        <div class="generator-form">
+                            <select id="idCardStudentSelect">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                            <button class="btn btn-blue btn-sm"
+                                onclick="generateStudentId()">
+                                🪪 Generate ID Card
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Staff ID Card -->
+                    <div class="generator-card">
+                        <div class="generator-icon orange">🪪</div>
+                        <h3>Staff ID Card</h3>
+                        <p>Generate a professional ID card for any staff member.</p>
+                        <div class="generator-form">
+                            <select id="idCardStaffSelect">
+                                <option value="">-- Select Staff --</option>
+                            </select>
+                            <button class="btn btn-orange btn-sm"
+                                onclick="generateStaffId()">
+                                🪪 Generate ID Card
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Certificate -->
+                    <div class="generator-card">
+                        <div class="generator-icon green">📜</div>
+                        <h3>Completion Certificate</h3>
+                        <p>Generate a completion certificate for a graduating student.</p>
+                        <div class="generator-form">
+                            <select id="certStudentSelect">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                            <button class="btn btn-sm"
+                                style="background:var(--success);color:white;"
+                                onclick="generateCertificate()">
+                                📜 Generate Certificate
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </div>
+</div>
+
+<!-- NEWS MODAL -->
+<div class="modal-overlay" id="newsModal" style="display:none;">
+    <div class="modal admin-modal" id="newsModalContent">
+        <!-- Populated dynamically -->
+    </div>
+</div>
+
+<!-- STAFF MODAL -->
+<div class="modal-overlay" id="staffModal" style="display:none;">
+    <div class="modal admin-modal" id="staffModalContent">
+        <!-- Populated dynamically -->
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────
-const API    = 'http://localhost:5000/api';
-const SERVER = 'http://localhost:5000';
+const API    = 'https://tokimi-foundation-website-production.up.railway.app/api';
+const SERVER = 'https://tokimi-foundation-website-production.up.railway.app';
 
 // ─────────────────────────────────────────
 // STATE — tracks current page and all articles

@@ -1,7 +1,7 @@
 
     // ── CONFIG ──
-    const API    = 'http://localhost:5000/api';
-    const SERVER = 'http://localhost:5000';
+const API    = 'https://tokimi-foundation-website-production.up.railway.app/api';
+const SERVER = 'https://tokimi-foundation-website-production.up.railway.app';
 
     // ── HELPERS ──
     const fmtDate = d => new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});

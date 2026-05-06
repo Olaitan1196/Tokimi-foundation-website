@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────
-const API = 'http://localhost:5000/api';
+const API    = 'https://tokimi-foundation-website-production.up.railway.app/api';
+const SERVER = 'https://tokimi-foundation-website-production.up.railway.app';
 
 // ─────────────────────────────────────────
 // STATE

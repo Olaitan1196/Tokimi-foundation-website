@@ -23,9 +23,25 @@ const __dirname  = path.dirname(__filename);
 
 // 4. Create our Express application
 const app = express();
+// ── CORS — allow both local and production frontend ──
+const allowedOrigins = [
+    'http://localhost:5500',        // VS Code Live Server
+    'http://127.0.0.1:5500',       // VS Code Live Server alt
+    'https://tokimi-foundation-website.netlify.app/', // ← Your Netlify URL here
+];
 
 // 5. Middleware
-app.use(cors());
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (Postman, mobile apps)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // ─────────────────────────────────────────

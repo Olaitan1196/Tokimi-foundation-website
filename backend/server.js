@@ -27,7 +27,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5500',        // VS Code Live Server
     'http://127.0.0.1:5500',       // VS Code Live Server alt
-    'https://tokimi-foundation-website.netlify.app/', // ← Your Netlify URL here
+    'https://tokimi-foundation-website.netlify.app' // ← Your Netlify URL here
 ];
 
 // 5. Middleware

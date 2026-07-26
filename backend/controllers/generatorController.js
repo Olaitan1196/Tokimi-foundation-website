@@ -1,3 +1,4 @@
+// backend/controllers/generatorController.js
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 import path from 'path';
@@ -13,12 +14,10 @@ const __dirname = path.dirname(__filename);
 const fillTemplate = (template, data) => {
     let filled = template;
     Object.keys(data).forEach(key => {
-        // Replace all {{key}} placeholders with actual values
         const regex = new RegExp(`{{${key}}}`, 'g');
         filled = filled.replace(regex, data[key] || '');
     });
 
-    // Handle {{#if photo_url}} blocks
     if (data.photo_url) {
         filled = filled.replace(/{{#if photo_url}}([\s\S]*?){{else}}[\s\S]*?{{\/if}}/g, '$1');
     } else {
@@ -41,8 +40,8 @@ const htmlToPdf = async (htmlContent, options = {}) => {
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
     const pdf = await page.pdf({
-        width:       options.width  || '400px',
-        height:      options.height || '250px',
+        width:  options.width  || '400px',
+        height: options.height || '250px',
         printBackground: true,
     });
 
@@ -57,48 +56,46 @@ export const generateStudentIdCard = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Fetch student from database
-        const [students] = await pool.query(
-            'SELECT * FROM students WHERE id = ?',
+        const result = await pool.query(
+            `SELECT cts.*, sc.name AS school_name, cl.name AS class_name
+            FROM computer_training_students cts
+            LEFT JOIN computer_training_schools sc ON cts.school_id = sc.id
+            LEFT JOIN computer_training_classes cl ON cts.class_id = cl.id
+            WHERE cts.id = $1`,
             [id]
         );
 
-        if (students.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: '❌ Student not found.' });
         }
 
-        const student = students[0];
+        const student = result.rows[0];
 
-        // Build the full photo URL if it exists
         const photo_url = student.photo_url
             ? `http://localhost:${process.env.PORT || 5000}${student.photo_url}`
             : null;
 
-        // Load the ID card template
         const templatePath = path.join(__dirname, '../templates/idcard.html');
         const template = fs.readFileSync(templatePath, 'utf-8');
 
-        // Fill the template with student data
+        const fullName = [student.first_name, student.middle_name, student.last_name]
+            .filter(Boolean).join(' ');
+
         const filledHtml = fillTemplate(template, {
-            first_name:           student.first_name,
-            last_name:            student.last_name,
-            email:                student.email        || 'N/A',
-            phone:                student.phone        || 'N/A',
-            type:                 'Student',
-            role_or_batch:        `Batch: ${student.batch}`,
-            department_or_year:   `Year: ${student.year}`,
-            photo_url:            photo_url,
-            id:                   String(student.id).padStart(4, '0'),
-            year:                 student.year,
+            first_name:          fullName,
+            last_name:           '',
+            email:               'N/A',
+            phone:               student.phone || 'N/A',
+            type:                'Student',
+            role_or_batch:       `Batch: ${student.batch}`,
+            department_or_year:  `School: ${student.school_name || 'N/A'}`,
+            photo_url:           photo_url,
+            id:                  String(student.id).padStart(4, '0'),
+            year:                student.year,
         });
 
-        // Convert to PDF
-        const pdf = await htmlToPdf(filledHtml, {
-            width: '400px',
-            height: '250px'
-        });
+        const pdf = await htmlToPdf(filledHtml, { width: '400px', height: '250px' });
 
-        // Send PDF as download
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(
             'Content-Disposition',
@@ -112,22 +109,22 @@ export const generateStudentIdCard = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-// 2. GENERATE STAFF ID CARD
+// 2. GENERATE STAFF ID CARD  (unchanged — staff table untouched)
 // ─────────────────────────────────────────────
 export const generateStaffIdCard = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [staffList] = await pool.query(
-            'SELECT * FROM staff WHERE id = ?',
+        const result = await pool.query(
+            'SELECT * FROM staff WHERE id = $1',
             [id]
         );
 
-        if (staffList.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: '❌ Staff member not found.' });
         }
 
-        const staff = staffList[0];
+        const staff = result.rows[0];
 
         const photo_url = staff.photo_url
             ? `http://localhost:${process.env.PORT || 5000}${staff.photo_url}`
@@ -149,10 +146,7 @@ export const generateStaffIdCard = async (req, res) => {
             year:               new Date().getFullYear(),
         });
 
-        const pdf = await htmlToPdf(filledHtml, {
-            width: '400px',
-            height: '250px'
-        });
+        const pdf = await htmlToPdf(filledHtml, { width: '400px', height: '250px' });
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(
@@ -173,18 +167,17 @@ export const generateCertificate = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [students] = await pool.query(
-            'SELECT * FROM students WHERE id = ?',
+        const result = await pool.query(
+            'SELECT * FROM computer_training_students WHERE id = $1',
             [id]
         );
 
-        if (students.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: '❌ Student not found.' });
         }
 
-        const student = students[0];
+        const student = result.rows[0];
 
-        // Format the current date nicely
         const date = new Date().toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'long',
@@ -203,11 +196,7 @@ export const generateCertificate = async (req, res) => {
             id:         String(student.id).padStart(4, '0'),
         });
 
-        // Certificate is A4 landscape
-        const pdf = await htmlToPdf(filledHtml, {
-            width:  '842px',
-            height: '595px'
-        });
+        const pdf = await htmlToPdf(filledHtml, { width: '842px', height: '595px' });
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader(

@@ -1,26 +1,24 @@
-// Import mysql2 package
-import mysql from 'mysql2/promise';
+import pg from 'pg';
 import dotenv from 'dotenv';
 
-// Load environment variables
+const { Pool } = pg;
+
 dotenv.config();
 
-// Create a connection pool to our database
-const pool = mysql.createPool({
+const pool = new Pool({
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
+    ssl: { rejectUnauthorized: false },
 });
 
-// Test the connection and let us know if it works
 const testConnection = async () => {
     try {
-        const connection = await pool.getConnection();
-        console.log('✅ MySQL Database connected successfully!');
-        connection.release();
+        const client = await pool.connect();
+        console.log('✅ Supabase (PostgreSQL) connected successfully!');
+        client.release();
     } catch (error) {
         console.error('❌ Database connection failed:', error.message);
     }
@@ -28,5 +26,4 @@ const testConnection = async () => {
 
 testConnection();
 
-// Export the pool so other files can use it
 export default pool;

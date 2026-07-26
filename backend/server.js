@@ -8,16 +8,19 @@ import { fileURLToPath } from 'url';
 // Import routes
 import enrollmentRoutes from './routes/enrollment.js';
 import scholarshipRoutes from './routes/scholarship.js';
+import grantRoutes       from './routes/grant.js';
 import newsRoutes        from './routes/news.js';
 import staffRoutes       from './routes/staff.js';
 import generatorRoutes   from './routes/generator.js';
 import authRoutes        from './routes/auth.js';
+import lookupRoutes      from './routes/lookup.js';
+import attendanceRoutes  from './routes/attendance.js';
 
 // 2. Load environment variables
 dotenv.config();
 
 // 3. Import database connection
-import './config/db.js';
+await import('./config/db.js');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
@@ -62,10 +65,13 @@ app.get('/', (req, res) => {
 // Register routes
 app.use('/api/enrollment', enrollmentRoutes);
 app.use('/api/scholarship',  scholarshipRoutes);
+app.use('/api/grant',        grantRoutes);
 app.use('/api/news',         newsRoutes);
 app.use('/api/staff',        staffRoutes);
 app.use('/api/generate',    generatorRoutes);
 app.use('/api/auth',        authRoutes);
+app.use('/api/lookup',      lookupRoutes);
+app.use('/api/attendance',  attendanceRoutes);
 // 7. Define port
 const PORT = process.env.PORT || 5000;
 

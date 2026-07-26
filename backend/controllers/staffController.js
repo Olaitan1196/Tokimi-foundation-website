@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 
 // ─────────────────────────────────────────────
 // MULTER SETUP — for staff photo uploads
+// (No changes here — Multer has nothing to do with the database)
 // ─────────────────────────────────────────────
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -37,7 +38,7 @@ const fileFilter = (req, file, cb) => {
 export const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB max
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 // ─────────────────────────────────────────────
@@ -47,41 +48,39 @@ export const addStaff = async (req, res) => {
     try {
         const { first_name, last_name, email, phone, role, department } = req.body;
 
-        // Validate required fields
         if (!first_name || !last_name || !role) {
             return res.status(400).json({
                 message: '❌ First name, last name and role are required.'
             });
         }
 
-        // Check if email already exists
         if (email) {
-            const [existing] = await pool.query(
-                'SELECT id FROM staff WHERE email = ?',
+            const existing = await pool.query(
+                'SELECT id FROM staff WHERE email = $1',
                 [email]
             );
-            if (existing.length > 0) {
+            if (existing.rows.length > 0) {
                 return res.status(400).json({
                     message: '❌ A staff member with this email already exists.'
                 });
             }
         }
 
-        // Handle photo upload
         const photo_url = req.file
             ? `/uploads/staff/${req.file.filename}`
             : null;
 
-        const [result] = await pool.query(
+        const result = await pool.query(
             `INSERT INTO staff
             (first_name, last_name, email, phone, role, department, photo_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING id`,
             [first_name, last_name, email, phone, role, department, photo_url]
         );
 
         res.status(201).json({
             message: `✅ Staff member ${first_name} ${last_name} added successfully!`,
-            staffId: result.insertId,
+            staffId: result.rows[0].id,
             photo_url
         });
 
@@ -100,20 +99,19 @@ export const getAllStaff = async (req, res) => {
         let query = 'SELECT * FROM staff';
         let params = [];
 
-        // Filter by department if provided
         if (department) {
-            query += ' WHERE department = ?';
+            query += ' WHERE department = $1';
             params = [department];
         }
 
         query += ' ORDER BY department ASC, last_name ASC';
 
-        const [staff] = await pool.query(query, params);
+        const result = await pool.query(query, params);
 
         res.status(200).json({
             message: '✅ Staff members retrieved successfully!',
-            total: staff.length,
-            staff
+            total: result.rows.length,
+            staff: result.rows
         });
 
     } catch (error) {
@@ -128,18 +126,18 @@ export const getStaffById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [staff] = await pool.query(
-            'SELECT * FROM staff WHERE id = ?',
+        const result = await pool.query(
+            'SELECT * FROM staff WHERE id = $1',
             [id]
         );
 
-        if (staff.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ message: '❌ Staff member not found.' });
         }
 
         res.status(200).json({
             message: '✅ Staff member found!',
-            staff: staff[0]
+            staff: result.rows[0]
         });
 
     } catch (error) {
@@ -155,24 +153,21 @@ export const updateStaff = async (req, res) => {
         const { id } = req.params;
         const { first_name, last_name, email, phone, role, department } = req.body;
 
-        // Check if staff exists
-        const [existing] = await pool.query(
-            'SELECT * FROM staff WHERE id = ?',
+        const existing = await pool.query(
+            'SELECT * FROM staff WHERE id = $1',
             [id]
         );
 
-        if (existing.length === 0) {
+        if (existing.rows.length === 0) {
             return res.status(404).json({ message: '❌ Staff member not found.' });
         }
 
-        // Handle photo update
         const photo_url = req.file
             ? `/uploads/staff/${req.file.filename}`
-            : existing[0].photo_url;
+            : existing.rows[0].photo_url;
 
-        // Delete old photo if new one uploaded
-        if (req.file && existing[0].photo_url) {
-            const oldPhotoPath = path.join(__dirname, '..', existing[0].photo_url);
+        if (req.file && existing.rows[0].photo_url) {
+            const oldPhotoPath = path.join(__dirname, '..', existing.rows[0].photo_url);
             if (fs.existsSync(oldPhotoPath)) {
                 fs.unlinkSync(oldPhotoPath);
             }
@@ -180,14 +175,14 @@ export const updateStaff = async (req, res) => {
 
         await pool.query(
             `UPDATE staff SET
-                first_name = ?,
-                last_name  = ?,
-                email      = ?,
-                phone      = ?,
-                role       = ?,
-                department = ?,
-                photo_url  = ?
-            WHERE id = ?`,
+                first_name = $1,
+                last_name  = $2,
+                email      = $3,
+                phone      = $4,
+                role       = $5,
+                department = $6,
+                photo_url  = $7
+            WHERE id = $8`,
             [first_name, last_name, email, phone, role, department, photo_url, id]
         );
 
@@ -205,24 +200,23 @@ export const deleteStaff = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const [existing] = await pool.query(
-            'SELECT * FROM staff WHERE id = ?',
+        const existing = await pool.query(
+            'SELECT * FROM staff WHERE id = $1',
             [id]
         );
 
-        if (existing.length === 0) {
+        if (existing.rows.length === 0) {
             return res.status(404).json({ message: '❌ Staff member not found.' });
         }
 
-        // Delete photo file from disk if it exists
-        if (existing[0].photo_url) {
-            const photoPath = path.join(__dirname, '..', existing[0].photo_url);
+        if (existing.rows[0].photo_url) {
+            const photoPath = path.join(__dirname, '..', existing.rows[0].photo_url);
             if (fs.existsSync(photoPath)) {
                 fs.unlinkSync(photoPath);
             }
         }
 
-        await pool.query('DELETE FROM staff WHERE id = ?', [id]);
+        await pool.query('DELETE FROM staff WHERE id = $1', [id]);
 
         res.status(200).json({ message: '✅ Staff member deleted successfully!' });
 
@@ -236,11 +230,10 @@ export const deleteStaff = async (req, res) => {
 // ─────────────────────────────────────────────
 export const exportStaff = async (req, res) => {
     try {
-        const [staff] = await pool.query(
+        const result = await pool.query(
             'SELECT * FROM staff ORDER BY department ASC, last_name ASC'
         );
 
-        // Make sure exports folder exists
         const exportsDir = path.join(__dirname, '../exports');
         if (!fs.existsSync(exportsDir)) {
             fs.mkdirSync(exportsDir);
@@ -262,7 +255,7 @@ export const exportStaff = async (req, res) => {
             ]
         });
 
-        await csvWriter.writeRecords(staff);
+        await csvWriter.writeRecords(result.rows);
 
         res.download(filePath, 'tokimi_staff.csv');
 

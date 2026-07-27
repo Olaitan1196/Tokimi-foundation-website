@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────
-const API    = 'https://tokimi-foundation-website-production.up.railway.app/api';
-const SERVER = 'https://tokimi-foundation-website-production.up.railway.app';
+const API    = 'https://tokimi-foundation-website.onrender.com/api';
+const SERVER = 'https://tokimi-foundation-website.onrender.com';
 
 // ─────────────────────────────────────────
 // STATE — tracks current page and all articles

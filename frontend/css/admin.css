@@ -56,7 +56,6 @@
 
 .login-logo-icon {
     width: 50px; height: 50px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -66,6 +65,7 @@
     font-size: 22px;
     color: var(--primary);
     flex-shrink: 0;
+    animation: logoPulse 2s steps(1) infinite;
 }
 
 .login-brand {
@@ -223,7 +223,6 @@
 
 .sidebar-logo-icon {
     width: 40px; height: 40px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -233,6 +232,24 @@
     font-size: 18px;
     color: var(--primary);
     flex-shrink: 0;
+    animation: logoPulse 2s steps(1) infinite;
+}
+
+@keyframes logoPulse {
+    0%, 49.99% { background: var(--white); }
+    50%, 100%  { background: var(--accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-logo-icon,
+    .sidebar-logo-icon { animation: none; background: var(--accent); }
+}
+
+.sidebar-logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: inherit;
 }
 
 .sidebar-brand {

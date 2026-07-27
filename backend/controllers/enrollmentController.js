@@ -408,3 +408,49 @@ export const importStudents = async (req, res) => {
         res.status(500).json({ message: '❌ Server error', error: error.message });
     }
 };
+
+// ─────────────────────────────────────────────
+// 8. PUBLIC — CHECK ENROLLMENT STATUS
+// Only safe fields returned — no phone, email, or address
+// ─────────────────────────────────────────────
+export const checkEnrollmentStatus = async (req, res) => {
+    try {
+        const { first_name, last_name, school_id, year, month } = req.query;
+
+        if (!first_name || !last_name || !school_id || !year || !month) {
+            return res.status(400).json({
+                message: '❌ First name, last name, school, year and month are all required.'
+            });
+        }
+
+        const result = await pool.query(
+            `SELECT
+                cts.first_name, cts.middle_name, cts.last_name,
+                sc.name AS school_name, cl.name AS class_name,
+                cts.batch, cts.year, cts.month, cts.status, cts.enrolled_at
+            FROM computer_training_students cts
+            LEFT JOIN computer_training_schools sc ON cts.school_id = sc.id
+            LEFT JOIN computer_training_classes cl ON cts.class_id = cl.id
+            WHERE TRIM(LOWER(cts.first_name)) = TRIM(LOWER($1))
+              AND TRIM(LOWER(cts.last_name))  = TRIM(LOWER($2))
+              AND cts.school_id = $3
+              AND cts.year = $4
+              AND cts.month = $5`,
+            [first_name, last_name, school_id, year, month]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: '❌ No matching enrollment found. Please check your details and try again.'
+            });
+        }
+
+        res.status(200).json({
+            message: '✅ Enrollment record found!',
+            results: result.rows
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: '❌ Server error', error: error.message });
+    }
+};

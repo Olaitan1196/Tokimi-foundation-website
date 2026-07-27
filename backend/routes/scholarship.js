@@ -5,7 +5,8 @@ import {
     getScholarshipById,
     updateScholarship,
     deleteScholarship,
-    exportScholarships
+    exportScholarships,
+    getPublicScholarshipStats
 } from '../controllers/scholarshipController.js';
 
 const router = express.Router();
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post('/',       addScholarship);      // Add scholarship
 router.get('/',        getScholarships);     // Get all
 router.get('/export',  exportScholarships);  // Export to CSV
+router.get('/stats/public',    getPublicScholarshipStats); // Get public statistics
 router.get('/:id',     getScholarshipById);  // Get one
 router.put('/:id',     updateScholarship);   // Update
 router.delete('/:id',  deleteScholarship);   // Delete

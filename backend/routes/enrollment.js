@@ -7,6 +7,7 @@ import {
     deleteStudent,
     exportStudents,
     importStudents,
+    checkEnrollmentStatus,
     upload
 } from '../controllers/enrollmentController.js';
 
@@ -19,6 +20,7 @@ const router = express.Router();
 router.post('/',            addStudent);          // Add student
 router.get('/',             getStudents);         // Get all / filter by batch
 router.get('/export',       exportStudents);      // Export to CSV
+router.get('/check-status',   checkEnrollmentStatus); // Check enrollment status
 router.post('/import', upload.single('file'), importStudents); // Import from CSV
 router.get('/:id',          getStudentById);      // Get one student
 router.put('/:id',          updateStudent);       // Update student

@@ -1,8 +1,6 @@
-// ─────────────────────────────────────────
-// CONFIG
-// ─────────────────────────────────────────
-const API    = 'https://tokimi-foundation-website-production.up.railway.app/api';
-const SERVER = 'https://tokimi-foundation-website-production.up.railway.app';
+import { API_BASE_URL } from './api.js';
+const API    = API_BASE_URL;
+const SERVER = API_BASE_URL.replace('/api', '');
 
 // ─────────────────────────────────────────
 // HELPERS
@@ -141,13 +139,16 @@ const switchSection = (sectionName) => {
 
     // Update topbar title
     const titles = {
-        dashboard:    'Dashboard',
-        news:         'News Feed Management',
-        students:     'Student Enrollment',
-        scholarships: 'Scholarships & Grants',
-        staff:        'Staff Management',
-        generator:    'ID Card & Certificate Generator'
-    };
+    dashboard:    'Dashboard',
+    news:         'News Feed Management',
+    students:     'Student Enrollment',
+    scholarships: 'Scholarships',
+    grants:       'Grants',
+    staff:        'Staff Management',
+    generator:    'ID Card & Certificate Generator',
+    lookups:      'Manage Schools & Classes',
+    attendance:   'Attendance'
+};
     document.getElementById('topbarTitle').textContent =
         titles[sectionName] || 'Dashboard';
 
@@ -158,6 +159,8 @@ const switchSection = (sectionName) => {
     if (sectionName === 'scholarships') loadAdminScholarships();
     if (sectionName === 'staff')        loadAdminStaff();
     if (sectionName === 'generator')    loadGeneratorSelects();
+    if (sectionName === 'grants')       loadAdminGrants();
+    if (sectionName === 'lookups')      loadLookupEntries();
 
     // Close sidebar on mobile
     document.getElementById('sidebar').classList.remove('open');
@@ -582,11 +585,7 @@ const closeNewsModal = () => {
 // ─────────────────────────────────────────
 const loadAdminStudents = async () => {
     const wrapper = document.getElementById('studentsTableWrapper');
-    wrapper.innerHTML = `
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading students...</p>
-        </div>`;
+    wrapper.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading students...</p></div>`;
 
     const batch = document.getElementById('adminBatchFilter')?.value || '';
     const year  = document.getElementById('adminYearFilter')?.value  || '';
@@ -600,67 +599,154 @@ const loadAdminStudents = async () => {
     try {
         const res  = await fetch(url);
         const data = await res.json();
-        const list = data.students || [];
+        allStudents = data.students || [];
 
-        if (list.length === 0) {
-            wrapper.innerHTML = `
-                <div class="empty-state" style="border:none;">
-                    <div class="ei">👨‍🎓</div>
-                    <h3>No Students Found</h3>
-                    <p>No students match the selected filters.</p>
-                </div>`;
+        if (allStudents.length === 0) {
+            wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">👨‍🎓</div><h3>No Students Found</h3><p>No students match the selected filters.</p></div>`;
             return;
         }
 
         wrapper.innerHTML = `
             <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Student Name</th>
-                        <th>Email</th>
-                        <th>Batch</th>
-                        <th>Year</th>
-                        <th>Status</th>
-                        <th>Enrolled</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>#</th><th>Student Name</th><th>Gender</th><th>School</th><th>Class</th><th>Batch</th><th>Year</th><th>Status</th><th>Enrolled</th><th>Actions</th></tr></thead>
                 <tbody>
-                    ${list.map((s, i) => `
+                    ${allStudents.map((s, i) => `
                         <tr>
                             <td>${i + 1}</td>
-                            <td><strong>${s.first_name} ${s.last_name}</strong></td>
-                            <td>${s.email || '—'}</td>
+                            <td><strong>${s.first_name} ${s.middle_name ? s.middle_name + ' ' : ''}${s.last_name}</strong></td>
+                            <td>${s.gender || '—'}</td>
+                            <td>${s.school_name || '—'}</td>
+                            <td>${s.class_name || '—'}</td>
                             <td>${s.batch}</td>
                             <td>${s.year}</td>
-                            <td>
-                                <span class="status-badge status-${s.status}">
-                                    ${s.status}
-                                </span>
-                            </td>
+                            <td><span class="status-badge status-${s.status}">${s.status}</span></td>
                             <td>${fmtDate(s.enrolled_at)}</td>
-                            <td>
-                                <div class="action-btns">
-                                    <button class="action-btn delete"
-                                        onclick="adminDeleteStudent(${s.id},
-                                        '${s.first_name} ${s.last_name}')">
-                                        🗑️ Del
-                                    </button>
-                                </div>
-                            </td>
+                            <td><div class="action-btns">
+                                <button class="action-btn edit" onclick="openStudentEditModal(${s.id})">✏️ Edit</button>
+                                <button class="action-btn delete" onclick="adminDeleteStudent(${s.id}, \`${s.first_name} ${s.last_name}\`)">🗑️ Del</button>
+                            </div></td>
                         </tr>`).join('')}
                 </tbody>
             </table>`;
 
     } catch {
-        wrapper.innerHTML = `
-            <div class="empty-state" style="border:none;">
-                <div class="ei">⚠️</div>
-                <h3>Could Not Load Students</h3>
-                <p>Make sure the backend server is running.</p>
-            </div>`;
+        wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">⚠️</div><h3>Could Not Load Students</h3><p>Make sure the backend server is running.</p></div>`;
     }
+};
+
+let allStudents = [];
+
+const openStudentEditModal = async (id) => {
+    await loadStudentLookups();
+    const student = allStudents.find(s => s.id === id);
+    if (!student) return;
+
+    const overlay = document.getElementById('studentModal');
+    const content = document.getElementById('studentModalContent');
+
+    const schoolOptions = ctSchools.map(s => `<option value="${s.id}" ${student.school_id === s.id ? 'selected' : ''}>${s.name}</option>`).join('');
+    const classOptions  = ctClasses.map(c => `<option value="${c.id}" ${student.class_id === c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthOptions = months.map(m => `<option value="${m}" ${student.month === m ? 'selected' : ''}>${m}</option>`).join('');
+
+    content.innerHTML = `
+        <div class="modal-header"><h3>✏️ Edit Student</h3><button class="modal-close-btn" onclick="closeStudentModal()">✕</button></div>
+        <div class="modal-body">
+            <div id="studentModalAlert"></div>
+            <div class="form-row">
+                <div class="form-group"><label>First Name *</label><input type="text" id="edit_first_name" value="${student.first_name}" /></div>
+                <div class="form-group"><label>Middle Name</label><input type="text" id="edit_middle_name" value="${student.middle_name || ''}" /></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Last Name *</label><input type="text" id="edit_last_name" value="${student.last_name}" /></div>
+                <div class="form-group"><label>Gender *</label>
+                    <select id="edit_gender">
+                        <option value="male" ${student.gender === 'male' ? 'selected' : ''}>Male</option>
+                        <option value="female" ${student.gender === 'female' ? 'selected' : ''}>Female</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Phone</label><input type="tel" id="edit_phone" value="${student.phone || ''}" /></div>
+                <div class="form-group"><label>Address</label><input type="text" id="edit_address" value="${student.address || ''}" /></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>School *</label><select id="edit_school_id">${schoolOptions}</select></div>
+                <div class="form-group"><label>Class *</label><select id="edit_class_id">${classOptions}</select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Batch *</label>
+                    <select id="edit_batch">
+                        ${['Batch-A','Batch-B','Batch-C','Batch-D','Batch-E'].map(b => `<option value="${b}" ${student.batch === b ? 'selected' : ''}>${b.replace('Batch-','Batch ')}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="form-group"><label>Year *</label>
+                    <select id="edit_year">
+                        ${[2023,2024,2025,2026].map(y => `<option value="${y}" ${student.year === y ? 'selected' : ''}>${y}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Month *</label><select id="edit_month">${monthOptions}</select></div>
+                <div class="form-group"><label>Status *</label>
+                    <select id="edit_status">
+                        ${['active','graduated','withdrawn','expelled'].map(st => `<option value="${st}" ${student.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Status Reason</label><input type="text" id="edit_status_reason" value="${student.status_reason || ''}" placeholder="Required if withdrawn/expelled" /></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline-blue btn-sm" onclick="closeStudentModal()">Cancel</button>
+            <button class="btn btn-orange btn-sm" onclick="saveEditStudent(${id})">💾 Save Changes</button>
+        </div>`;
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeStudentModal(); });
+};
+
+const saveEditStudent = async (id) => {
+    const updatedData = {
+        first_name:    document.getElementById('edit_first_name').value.trim(),
+        middle_name:   document.getElementById('edit_middle_name').value.trim(),
+        last_name:     document.getElementById('edit_last_name').value.trim(),
+        gender:        document.getElementById('edit_gender').value,
+        phone:         document.getElementById('edit_phone').value.trim(),
+        address:       document.getElementById('edit_address').value.trim(),
+        school_id:     document.getElementById('edit_school_id').value,
+        class_id:      document.getElementById('edit_class_id').value,
+        batch:         document.getElementById('edit_batch').value,
+        year:          parseInt(document.getElementById('edit_year').value),
+        month:         document.getElementById('edit_month').value,
+        status:        document.getElementById('edit_status').value,
+        status_reason: document.getElementById('edit_status_reason').value.trim()
+    };
+
+    const alertEl = document.getElementById('studentModalAlert');
+    if (!updatedData.first_name || !updatedData.last_name) {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ First and last name are required.</div>`;
+        return;
+    }
+
+    try {
+        const res  = await fetch(`${API}/enrollment/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData) });
+        const data = await res.json();
+        if (res.ok) {
+            closeStudentModal();
+            loadAdminStudents();
+            loadDashStats();
+        } else {
+            alertEl.innerHTML = `<div class="admin-alert danger">❌ ${data.message}</div>`;
+        }
+    } catch {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Server error. Try again.</div>`;
+    }
+};
+
+const closeStudentModal = () => {
+    document.getElementById('studentModal').style.display = 'none';
+    document.body.style.overflow = '';
 };
 
 const adminDeleteStudent = async (id, name) => {
@@ -689,83 +775,357 @@ const exportStudents = () => {
 };
 
 // ─────────────────────────────────────────
-// SCHOLARSHIPS TABLE
+// LOOKUP CACHES
 // ─────────────────────────────────────────
+let scholarshipSchools = [];
+let scholarshipClasses = [];
+let grantSchools       = [];
+let ctSchools = [];
+let ctClasses = [];
+
+const loadScholarshipLookups = async () => {
+    if (scholarshipSchools.length && scholarshipClasses.length) return;
+    try {
+        const [schRes, clsRes] = await Promise.all([
+            fetch(`${API}/lookup/scholarship-schools`),
+            fetch(`${API}/lookup/scholarship-classes`)
+        ]);
+        scholarshipSchools = (await schRes.json()).entries;
+        scholarshipClasses = (await clsRes.json()).entries;
+    } catch { console.error('Could not load scholarship lookups'); }
+};
+
+const loadGrantLookups = async () => {
+    if (grantSchools.length) return;
+    try {
+        const res = await fetch(`${API}/lookup/grant-schools`);
+        grantSchools = (await res.json()).entries;
+    } catch { console.error('Could not load grant lookups'); }
+};
+
+const loadStudentLookups = async () => {
+    if (ctSchools.length && ctClasses.length) return;
+    try {
+        const [schRes, clsRes] = await Promise.all([
+            fetch(`${API}/lookup/computer-training-schools`),
+            fetch(`${API}/lookup/computer-training-classes`)
+        ]);
+        ctSchools = (await schRes.json()).entries;
+        ctClasses = (await clsRes.json()).entries;
+    } catch { console.error('Could not load student lookups'); }
+};
+// ─────────────────────────────────────────
+// SCHOLARSHIPS
+// ─────────────────────────────────────────
+let allScholarships = [];
+
 const loadAdminScholarships = async () => {
     const wrapper = document.getElementById('scholarshipsTableWrapper');
-    wrapper.innerHTML = `
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading records...</p>
-        </div>`;
-
+    wrapper.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading records...</p></div>`;
     try {
         const res  = await fetch(`${API}/scholarship`);
         const data = await res.json();
-        const list = data.scholarships || [];
+        allScholarships = data.scholarships || [];
 
-        if (list.length === 0) {
-            wrapper.innerHTML = `
-                <div class="empty-state" style="border:none;">
-                    <div class="ei">🏆</div>
-                    <h3>No Awards Recorded Yet</h3>
-                    <p>Go to the Scholarship page to record awards.</p>
-                </div>`;
+        if (allScholarships.length === 0) {
+            wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">🏆</div><h3>No Scholarships Awarded Yet</h3><p>Click "Award Scholarship" to record the first one.</p></div>`;
             return;
         }
 
         wrapper.innerHTML = `
             <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Student</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Date Awarded</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>#</th><th>Student</th><th>School</th><th>Class</th><th>Purpose</th><th>Amount</th><th>Date Awarded</th><th>Actions</th></tr></thead>
                 <tbody>
-                    ${list.map((r, i) => `
+                    ${allScholarships.map((r, i) => `
                         <tr>
                             <td>${i + 1}</td>
-                            <td>
-                                <strong>${r.first_name} ${r.last_name}</strong>
-                                <br>
-                                <span style="font-size:11px;color:var(--text-3);">
-                                    ${r.batch} · ${r.year}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="status-badge type-${r.type}">
-                                    ${r.type}
-                                </span>
-                            </td>
-                            <td style="color:var(--success);font-weight:700;">
-                                ${fmtCurrency(r.amount)}
-                            </td>
+                            <td><strong>${r.student_name}</strong></td>
+                            <td>${r.school_name || '—'}</td>
+                            <td>${r.class_name || '—'}</td>
+                            <td>${r.purpose}</td>
+                            <td style="color:var(--success);font-weight:700;">${fmtCurrency(r.amount)}</td>
                             <td>${fmtDate(r.date_awarded)}</td>
-                            <td style="max-width:200px;white-space:normal;">
-                                ${r.description || '—'}
-                            </td>
+                            <td><div class="action-btns">
+                                <button class="action-btn edit" onclick="openScholarshipModal(${r.id})">✏️ Edit</button>
+                                <button class="action-btn delete" onclick="deleteScholarship(${r.id}, \`${r.student_name}\`)">🗑️ Del</button>
+                            </div></td>
                         </tr>`).join('')}
                 </tbody>
             </table>`;
-
     } catch {
-        wrapper.innerHTML = `
-            <div class="empty-state" style="border:none;">
-                <div class="ei">⚠️</div>
-                <h3>Could Not Load Records</h3>
-                <p>Make sure the backend server is running.</p>
-            </div>`;
+        wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">⚠️</div><h3>Could Not Load Scholarships</h3><p>Make sure the backend server is running.</p></div>`;
     }
 };
 
-const exportScholarships = () => {
-    window.open(`${API}/scholarship/export`, '_blank');
+const openScholarshipModal = async (id = null) => {
+    await loadScholarshipLookups();
+    const editData = id ? allScholarships.find(r => r.id === id) : null;
+    const overlay  = document.getElementById('scholarshipModal');
+    const content  = document.getElementById('scholarshipModalContent');
+
+    const schoolOptions = scholarshipSchools.map(s => `<option value="${s.id}" ${editData?.school_id === s.id ? 'selected' : ''}>${s.name}</option>`).join('');
+    const classOptions  = scholarshipClasses.map(c => `<option value="${c.id}" ${editData?.class_id === c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+    const purposeOptions = ['WAEC','NECO','GCE','JAMB'].map(p => `<option value="${p}" ${editData?.purpose === p ? 'selected' : ''}>${p}</option>`).join('');
+    const dateVal = editData ? new Date(editData.date_awarded).toISOString().split('T')[0] : '';
+
+    content.innerHTML = `
+        <div class="modal-header"><h3>${editData ? '✏️ Edit Scholarship' : '🏆 Award Scholarship'}</h3><button class="modal-close-btn" onclick="closeScholarshipModal()">✕</button></div>
+        <div class="modal-body">
+            <div id="scholarshipModalAlert"></div>
+            <div class="form-group"><label>Student Name *</label><input type="text" id="sch_student_name" value="${editData?.student_name || ''}" placeholder="e.g. Amina Bello" /></div>
+            <div class="form-row">
+                <div class="form-group"><label>School *</label><select id="sch_school_id"><option value="">-- Select School --</option>${schoolOptions}</select></div>
+                <div class="form-group"><label>Class *</label><select id="sch_class_id"><option value="">-- Select Class --</option>${classOptions}</select></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Purpose *</label><select id="sch_purpose"><option value="">-- Select --</option>${purposeOptions}</select></div>
+                <div class="form-group"><label>Amount (₦) *</label><input type="number" id="sch_amount" value="${editData?.amount || ''}" min="0" /></div>
+            </div>
+            <div class="form-group"><label>Date Awarded *</label><input type="date" id="sch_date_awarded" value="${dateVal}" /></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline-blue btn-sm" onclick="closeScholarshipModal()">Cancel</button>
+            <button class="btn btn-orange btn-sm" onclick="${editData ? `saveEditScholarship(${id})` : 'submitScholarship()'}">${editData ? '💾 Save Changes' : '🏆 Award Scholarship'}</button>
+        </div>`;
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeScholarshipModal(); });
 };
+
+const getScholarshipFormData = () => ({
+    student_name: document.getElementById('sch_student_name').value.trim(),
+    school_id:    document.getElementById('sch_school_id').value,
+    class_id:     document.getElementById('sch_class_id').value,
+    purpose:      document.getElementById('sch_purpose').value,
+    amount:       parseFloat(document.getElementById('sch_amount').value),
+    date_awarded: document.getElementById('sch_date_awarded').value
+});
+
+const submitScholarship = async () => {
+    const formData = getScholarshipFormData();
+    const alertEl  = document.getElementById('scholarshipModalAlert');
+    if (!formData.student_name || !formData.school_id || !formData.class_id || !formData.purpose || !formData.amount || !formData.date_awarded) {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ All fields are required.</div>`;
+        return;
+    }
+    try {
+        const res  = await fetch(`${API}/scholarship`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const data = await res.json();
+        if (res.ok) {
+            closeScholarshipModal();
+            showSectionAlert('scholarshipAlertContainer', data.message);
+            loadAdminScholarships();
+            loadDashStats();
+        } else {
+            alertEl.innerHTML = `<div class="admin-alert danger">❌ ${data.message}</div>`;
+        }
+    } catch {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Server error. Try again.</div>`;
+    }
+};
+
+const saveEditScholarship = async (id) => {
+    const formData = getScholarshipFormData();
+    const alertEl  = document.getElementById('scholarshipModalAlert');
+    try {
+        const res  = await fetch(`${API}/scholarship/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const data = await res.json();
+        if (res.ok) {
+            closeScholarshipModal();
+            showSectionAlert('scholarshipAlertContainer', 'Scholarship updated successfully!');
+            loadAdminScholarships();
+        } else {
+            alertEl.innerHTML = `<div class="admin-alert danger">❌ ${data.message}</div>`;
+        }
+    } catch {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Server error. Try again.</div>`;
+    }
+};
+
+const deleteScholarship = async (id, name) => {
+    if (!confirm(`Delete scholarship for ${name}? This cannot be undone.`)) return;
+    try {
+        const res = await fetch(`${API}/scholarship/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            showSectionAlert('scholarshipAlertContainer', 'Scholarship deleted.');
+            loadAdminScholarships();
+            loadDashStats();
+        }
+    } catch { alert('Server error.'); }
+};
+
+const closeScholarshipModal = () => {
+    document.getElementById('scholarshipModal').style.display = 'none';
+    document.body.style.overflow = '';
+};
+
+const exportScholarships = () => window.open(`${API}/scholarship/export`, '_blank');
+
+// ─────────────────────────────────────────
+// GRANTS
+// ─────────────────────────────────────────
+let allGrants = [];
+
+const loadAdminGrants = async () => {
+    const wrapper = document.getElementById('grantsTableWrapper');
+    wrapper.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading records...</p></div>`;
+    try {
+        const res  = await fetch(`${API}/grant`);
+        const data = await res.json();
+        allGrants = data.grants || [];
+
+        if (allGrants.length === 0) {
+            wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">🤝</div><h3>No Grants Awarded Yet</h3><p>Click "Award Grant" to record the first one.</p></div>`;
+            return;
+        }
+
+        wrapper.innerHTML = `
+            <table>
+                <thead><tr><th>#</th><th>Beneficiary</th><th>Status</th><th>School / Business</th><th>Purpose</th><th>Amount</th><th>Date Awarded</th><th>Actions</th></tr></thead>
+                <tbody>
+                    ${allGrants.map((g, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${g.beneficiary_name}</strong></td>
+                            <td>${g.beneficiary_status}</td>
+                            <td>${g.beneficiary_status === 'student' ? (g.school_name || '—') : (g.business_type || '—')}</td>
+                            <td>${g.purpose}</td>
+                            <td style="color:var(--success);font-weight:700;">${fmtCurrency(g.amount)}</td>
+                            <td>${fmtDate(g.date_awarded)}</td>
+                            <td><div class="action-btns">
+                                <button class="action-btn edit" onclick="openGrantModal(${g.id})">✏️ Edit</button>
+                                <button class="action-btn delete" onclick="deleteGrant(${g.id}, \`${g.beneficiary_name}\`)">🗑️ Del</button>
+                            </div></td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+    } catch {
+        wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">⚠️</div><h3>Could Not Load Grants</h3><p>Make sure the backend server is running.</p></div>`;
+    }
+};
+
+const openGrantModal = async (id = null) => {
+    await loadGrantLookups();
+    const editData = id ? allGrants.find(g => g.id === id) : null;
+    const overlay  = document.getElementById('grantModal');
+    const content  = document.getElementById('grantModalContent');
+
+    const schoolOptions = grantSchools.map(s => `<option value="${s.id}" ${editData?.school_id === s.id ? 'selected' : ''}>${s.name}</option>`).join('');
+    const dateVal = editData ? new Date(editData.date_awarded).toISOString().split('T')[0] : '';
+    const isStudent = editData ? editData.beneficiary_status === 'student' : true;
+
+    content.innerHTML = `
+        <div class="modal-header"><h3>${editData ? '✏️ Edit Grant' : '🤝 Award Grant'}</h3><button class="modal-close-btn" onclick="closeGrantModal()">✕</button></div>
+        <div class="modal-body">
+            <div id="grantModalAlert"></div>
+            <div class="form-group"><label>Beneficiary Name *</label><input type="text" id="grant_beneficiary_name" value="${editData?.beneficiary_name || ''}" /></div>
+            <div class="form-group"><label>Beneficiary Type *</label>
+                <select id="grant_beneficiary_status" onchange="toggleGrantFields()">
+                    <option value="student" ${isStudent ? 'selected' : ''}>Student</option>
+                    <option value="business_owner" ${!isStudent ? 'selected' : ''}>Business Owner</option>
+                </select>
+            </div>
+            <div class="form-group" id="grant_school_group" style="display:${isStudent ? 'flex' : 'none'};">
+                <label>School *</label><select id="grant_school_id"><option value="">-- Select School --</option>${schoolOptions}</select>
+            </div>
+            <div class="form-group" id="grant_business_group" style="display:${isStudent ? 'none' : 'flex'};">
+                <label>Business Type *</label><input type="text" id="grant_business_type" value="${editData?.business_type || ''}" placeholder="e.g. Tailoring" />
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Purpose *</label><input type="text" id="grant_purpose" value="${editData?.purpose || ''}" placeholder="e.g. Business startup support" /></div>
+                <div class="form-group"><label>Amount (₦) *</label><input type="number" id="grant_amount" value="${editData?.amount || ''}" min="0" /></div>
+            </div>
+            <div class="form-group"><label>Date Awarded *</label><input type="date" id="grant_date_awarded" value="${dateVal}" /></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline-blue btn-sm" onclick="closeGrantModal()">Cancel</button>
+            <button class="btn btn-orange btn-sm" onclick="${editData ? `saveEditGrant(${id})` : 'submitGrant()'}">${editData ? '💾 Save Changes' : '🤝 Award Grant'}</button>
+        </div>`;
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeGrantModal(); });
+};
+
+const toggleGrantFields = () => {
+    const isStudent = document.getElementById('grant_beneficiary_status').value === 'student';
+    document.getElementById('grant_school_group').style.display   = isStudent ? 'flex' : 'none';
+    document.getElementById('grant_business_group').style.display = isStudent ? 'none' : 'flex';
+};
+
+const getGrantFormData = () => {
+    const status = document.getElementById('grant_beneficiary_status').value;
+    return {
+        beneficiary_name:   document.getElementById('grant_beneficiary_name').value.trim(),
+        beneficiary_status: status,
+        school_id:          status === 'student' ? document.getElementById('grant_school_id').value : null,
+        business_type:      status === 'business_owner' ? document.getElementById('grant_business_type').value.trim() : null,
+        purpose:            document.getElementById('grant_purpose').value.trim(),
+        amount:             parseFloat(document.getElementById('grant_amount').value),
+        date_awarded:       document.getElementById('grant_date_awarded').value
+    };
+};
+
+const submitGrant = async () => {
+    const formData = getGrantFormData();
+    const alertEl  = document.getElementById('grantModalAlert');
+    if (!formData.beneficiary_name || !formData.purpose || !formData.amount || !formData.date_awarded) {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ All required fields must be filled.</div>`;
+        return;
+    }
+    try {
+        const res  = await fetch(`${API}/grant`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const data = await res.json();
+        if (res.ok) {
+            closeGrantModal();
+            showSectionAlert('grantAlertContainer', data.message);
+            loadAdminGrants();
+            loadDashStats();
+        } else {
+            alertEl.innerHTML = `<div class="admin-alert danger">❌ ${data.message}</div>`;
+        }
+    } catch {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Server error. Try again.</div>`;
+    }
+};
+
+const saveEditGrant = async (id) => {
+    const formData = getGrantFormData();
+    const alertEl  = document.getElementById('grantModalAlert');
+    try {
+        const res  = await fetch(`${API}/grant/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+        const data = await res.json();
+        if (res.ok) {
+            closeGrantModal();
+            showSectionAlert('grantAlertContainer', 'Grant updated successfully!');
+            loadAdminGrants();
+        } else {
+            alertEl.innerHTML = `<div class="admin-alert danger">❌ ${data.message}</div>`;
+        }
+    } catch {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Server error. Try again.</div>`;
+    }
+};
+
+const deleteGrant = async (id, name) => {
+    if (!confirm(`Delete grant for ${name}? This cannot be undone.`)) return;
+    try {
+        const res = await fetch(`${API}/grant/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            showSectionAlert('grantAlertContainer', 'Grant deleted.');
+            loadAdminGrants();
+            loadDashStats();
+        }
+    } catch { alert('Server error.'); }
+};
+
+const closeGrantModal = () => {
+    document.getElementById('grantModal').style.display = 'none';
+    document.body.style.overflow = '';
+};
+
+const exportGrants = () => window.open(`${API}/grant/export`, '_blank');
 
 // ─────────────────────────────────────────
 // STAFF TABLE
@@ -1052,6 +1412,329 @@ const generateCertificate = () => {
 };
 
 // ─────────────────────────────────────────
+// LOOKUP MANAGEMENT (Schools & Classes)
+// ─────────────────────────────────────────
+let currentLookupType = 'computer-training-schools';
+
+const switchLookupTab = (type) => {
+    currentLookupType = type;
+    document.querySelectorAll('.lookup-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-lookup="${type}"]`).classList.add('active');
+    loadLookupEntries();
+};
+
+const loadLookupEntries = async () => {
+    const wrapper = document.getElementById('lookupTableWrapper');
+    wrapper.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading...</p></div>`;
+    try {
+        const res  = await fetch(`${API}/lookup/${currentLookupType}?includeInactive=true`);
+        const data = await res.json();
+        const list = data.entries || [];
+
+        if (list.length === 0) {
+            wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">📭</div><h3>No Entries Yet</h3><p>Add one using the field above.</p></div>`;
+            return;
+        }
+
+        wrapper.innerHTML = `
+            <table>
+                <thead><tr><th>#</th><th>Name</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                    ${list.map((e, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${e.name}</strong></td>
+                            <td><span class="status-badge status-${e.is_active ? 'active' : 'withdrawn'}">${e.is_active ? 'Active' : 'Inactive'}</span></td>
+                            <td><div class="action-btns">
+                                ${e.is_active
+                                    ? `<button class="action-btn delete" onclick="removeLookupEntry(${e.id})">🗑️ Deactivate</button>`
+                                    : `<button class="action-btn edit" onclick="reactivateLookupEntry(${e.id})">♻️ Reactivate</button>`
+                                }
+                            </div></td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+    } catch {
+        wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">⚠️</div><h3>Could Not Load Entries</h3><p>Make sure the backend server is running.</p></div>`;
+    }
+};
+
+const addLookupEntry = async () => {
+    const input = document.getElementById('lookupNewName');
+    const name  = input.value.trim();
+    if (!name) return;
+
+    try {
+        const res  = await fetch(`${API}/lookup/${currentLookupType}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            input.value = '';
+            showSectionAlert('lookupAlertContainer', data.message);
+            loadLookupEntries();
+        } else {
+            showSectionAlert('lookupAlertContainer', data.message, 'danger');
+        }
+    } catch {
+        showSectionAlert('lookupAlertContainer', 'Server error. Try again.', 'danger');
+    }
+};
+
+const removeLookupEntry = async (id) => {
+    if (!confirm('Deactivate this entry? It will stop appearing in forms but existing records keep their reference.')) return;
+    try {
+        const res  = await fetch(`${API}/lookup/${currentLookupType}/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+            showSectionAlert('lookupAlertContainer', data.message);
+            loadLookupEntries();
+        }
+    } catch { alert('Server error.'); }
+};
+
+const reactivateLookupEntry = async (id) => {
+    try {
+        const res  = await fetch(`${API}/lookup/${currentLookupType}/${id}/reactivate`, { method: 'PUT' });
+        const data = await res.json();
+        if (res.ok) {
+            showSectionAlert('lookupAlertContainer', data.message);
+            loadLookupEntries();
+        }
+    } catch { alert('Server error.'); }
+};
+
+// ─────────────────────────────────────────
+// ATTENDANCE
+// ─────────────────────────────────────────
+let currentAttendanceSheet = [];
+
+const loadAttendanceSheet = async () => {
+    const batch = document.getElementById('attBatchSelect').value;
+    const date  = document.getElementById('attDate').value;
+    const wrapper = document.getElementById('attendanceSheetWrapper');
+
+    if (!batch || !date) {
+        showSectionAlert('attendanceAlertContainer', 'Please select both a batch and a date.', 'danger');
+        return;
+    }
+
+    wrapper.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading sheet...</p></div>`;
+
+    try {
+        const res  = await fetch(`${API}/attendance?batch=${batch}&date=${date}`);
+        const data = await res.json();
+        currentAttendanceSheet = data.attendance || [];
+
+        if (currentAttendanceSheet.length === 0) {
+            wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">👨‍🎓</div><h3>No Students in This Batch</h3></div>`;
+            return;
+        }
+
+        const statuses = ['present', 'absent', 'excused', 'late'];
+
+        wrapper.innerHTML = `
+            <table>
+                <thead><tr><th>#</th><th>Student Name</th><th>Status</th></tr></thead>
+                <tbody>
+                    ${currentAttendanceSheet.map((s, i) => `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><strong>${s.first_name} ${s.last_name}</strong></td>
+                            <td>
+                                <select class="att-status-select" data-student-id="${s.student_id}">
+                                    <option value="">-- Not Marked --</option>
+                                    ${statuses.map(st => `<option value="${st}" ${s.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+                                </select>
+                            </td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+
+    } catch {
+        wrapper.innerHTML = `<div class="empty-state" style="border:none;"><div class="ei">⚠️</div><h3>Could Not Load Sheet</h3><p>Make sure the backend server is running.</p></div>`;
+    }
+};
+
+const markAllPresent = () => {
+    document.querySelectorAll('.att-status-select').forEach(sel => sel.value = 'present');
+};
+
+const saveAttendance = async () => {
+    const batch = document.getElementById('attBatchSelect').value;
+    const date  = document.getElementById('attDate').value;
+
+    if (!batch || !date) {
+        showSectionAlert('attendanceAlertContainer', 'Please select both a batch and a date.', 'danger');
+        return;
+    }
+
+    const records = Array.from(document.querySelectorAll('.att-status-select'))
+        .filter(sel => sel.value)
+        .map(sel => ({ student_id: parseInt(sel.dataset.studentId), status: sel.value }));
+
+    if (records.length === 0) {
+        showSectionAlert('attendanceAlertContainer', 'No statuses selected — nothing to save.', 'danger');
+        return;
+    }
+
+    try {
+        const res  = await fetch(`${API}/attendance/mark-batch`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ batch, date, records })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showSectionAlert('attendanceAlertContainer', data.message);
+        } else {
+            showSectionAlert('attendanceAlertContainer', data.message, 'danger');
+        }
+    } catch {
+        showSectionAlert('attendanceAlertContainer', 'Server error. Try again.', 'danger');
+    }
+};
+
+const exportAttendance = () => {
+    const batch = document.getElementById('expBatchSelect').value;
+    const start = document.getElementById('expStartDate').value;
+    const end   = document.getElementById('expEndDate').value;
+
+    if (!batch || !start || !end) {
+        showSectionAlert('attendanceAlertContainer', 'Please select batch, start date and end date to export.', 'danger');
+        return;
+    }
+
+    window.open(`${API}/attendance/export?batch=${batch}&start_date=${start}&end_date=${end}`, '_blank');
+};
+
+const importAttendanceFile = async () => {
+    const batch = document.getElementById('impBatchSelect').value;
+    const file  = document.getElementById('impFile').files[0];
+
+    if (!batch || !file) {
+        showSectionAlert('attendanceAlertContainer', 'Please select a batch and a CSV file to import.', 'danger');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('batch', batch);
+    formData.append('file', file);
+
+    try {
+        const res  = await fetch(`${API}/attendance/import`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok) {
+            showSectionAlert('attendanceAlertContainer', data.message);
+            if (data.errors && data.errors.length) console.warn('Import errors:', data.errors);
+        } else {
+            showSectionAlert('attendanceAlertContainer', data.message, 'danger');
+        }
+    } catch {
+        showSectionAlert('attendanceAlertContainer', 'Server error. Try again.', 'danger');
+    }
+};
+
+// ─────────────────────────────────────────
+// IMPORT STUDENTS (bulk CSV)
+// ─────────────────────────────────────────
+const openImportModal = () => {
+    const overlay = document.getElementById('importModal');
+    const content = document.getElementById('importModalContent');
+
+    content.innerHTML = `
+        <div class="modal-header"><h3>📥 Import Students</h3><button class="modal-close-btn" onclick="closeImportModal()">✕</button></div>
+        <div class="modal-body">
+            <div id="importModalAlert"></div>
+            <p style="font-size:13px;color:var(--text-2);margin-bottom:16px;line-height:1.6;">
+                Upload a CSV with columns: <strong>NAMES, SEX, SCHOOL, CLASS, ADDRESS, PHONE NUMBER</strong>.
+                Batch, year and month below apply to every row in the file.
+            </p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Batch *</label>
+                    <select id="imp_batch">
+                        <option value="">-- Select --</option>
+                        <option value="Batch-A">Batch A</option>
+                        <option value="Batch-B">Batch B</option>
+                        <option value="Batch-C">Batch C</option>
+                        <option value="Batch-D">Batch D</option>
+                        <option value="Batch-E">Batch E</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year *</label>
+                    <select id="imp_year">
+                        <option value="">-- Select --</option>
+                        <option value="2023">2023</option><option value="2024">2024</option>
+                        <option value="2025">2025</option><option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Month *</label>
+                <select id="imp_month">
+                    <option value="">-- Select --</option>
+                    ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => `<option value="${m}">${m}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>CSV File *</label>
+                <input type="file" id="imp_file" accept=".csv" />
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline-blue btn-sm" onclick="closeImportModal()">Cancel</button>
+            <button class="btn btn-orange btn-sm" onclick="submitImportStudents()">📥 Import Students</button>
+        </div>`;
+
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeImportModal(); });
+};
+
+const submitImportStudents = async () => {
+    const batch = document.getElementById('imp_batch').value;
+    const year  = document.getElementById('imp_year').value;
+    const month = document.getElementById('imp_month').value;
+    const file  = document.getElementById('imp_file').files[0];
+    const alertEl = document.getElementById('importModalAlert');
+
+    if (!batch || !year || !month || !file) {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Batch, year, month and a CSV file are all required.</div>`;
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('batch', batch);
+    formData.append('year', year);
+    formData.append('month', month);
+    formData.append('file', file);
+
+    try {
+        const res  = await fetch(`${API}/enrollment/import`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok) {
+            closeImportModal();
+            showSectionAlert('studentsAlertContainer', data.message); // fallback container; replaced below
+            loadAdminStudents();
+            loadDashStats();
+            if (data.errors && data.errors.length) console.warn('Import errors:', data.errors);
+        } else {
+            alertEl.innerHTML = `<div class="admin-alert danger">❌ ${data.message}</div>`;
+        }
+    } catch {
+        alertEl.innerHTML = `<div class="admin-alert danger">❌ Server error. Try again.</div>`;
+    }
+};
+
+const closeImportModal = () => {
+    document.getElementById('importModal').style.display = 'none';
+    document.body.style.overflow = '';
+};
+// ─────────────────────────────────────────
 // SIDEBAR TOGGLE (mobile)
 // ─────────────────────────────────────────
 document.getElementById('sidebarToggle')
@@ -1095,6 +1778,10 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeNewsModal();
         closeStaffModal();
+        closeScholarshipModal();
+        closeGrantModal();
+        closeStudentModal();
+        closeImportModal();
     }
 });
 
@@ -1108,3 +1795,56 @@ document.getElementById('loginForm')
 // INIT — Check if already logged in
 // ─────────────────────────────────────────
 checkAuth();
+
+// ─────────────────────────────────────────
+// EXPOSE FUNCTIONS FOR INLINE onclick HANDLERS
+// Required because type="module" scopes everything
+// to the module — not global — by default
+// ─────────────────────────────────────────
+window.refreshDashboard      = refreshDashboard;
+window.switchSection         = switchSection;
+window.openNewsModal         = openNewsModal;
+window.openEditNewsModal     = openEditNewsModal;
+window.saveEditNews          = saveEditNews;
+window.submitNews            = submitNews;
+window.deleteNews            = deleteNews;
+window.closeNewsModal        = closeNewsModal;
+window.exportStudents        = exportStudents;
+window.adminDeleteStudent    = adminDeleteStudent;
+window.loadAdminStudents     = loadAdminStudents;
+window.openStaffModal        = openStaffModal;
+window.submitStaff           = submitStaff;
+window.adminDeleteStaff      = adminDeleteStaff;
+window.closeStaffModal       = closeStaffModal;
+window.exportStaff           = exportStaff;
+window.generateStudentId     = generateStudentId;
+window.generateStaffId       = generateStaffId;
+window.generateCertificate   = generateCertificate;
+window.openScholarshipModal  = openScholarshipModal;
+window.submitScholarship     = submitScholarship;
+window.saveEditScholarship   = saveEditScholarship;
+window.deleteScholarship     = deleteScholarship;
+window.closeScholarshipModal = closeScholarshipModal;
+window.exportScholarships    = exportScholarships;
+window.openGrantModal        = openGrantModal;
+window.submitGrant           = submitGrant;
+window.saveEditGrant         = saveEditGrant;
+window.deleteGrant           = deleteGrant;
+window.closeGrantModal       = closeGrantModal;
+window.toggleGrantFields     = toggleGrantFields;
+window.exportGrants          = exportGrants;
+window.openStudentEditModal = openStudentEditModal;
+window.saveEditStudent      = saveEditStudent;
+window.closeStudentModal    = closeStudentModal;
+window.switchLookupTab       = switchLookupTab;
+window.addLookupEntry        = addLookupEntry;
+window.removeLookupEntry     = removeLookupEntry;
+window.reactivateLookupEntry = reactivateLookupEntry;
+window.loadAttendanceSheet  = loadAttendanceSheet;
+window.markAllPresent       = markAllPresent;
+window.saveAttendance       = saveAttendance;
+window.exportAttendance     = exportAttendance;
+window.importAttendanceFile = importAttendanceFile;
+window.openImportModal      = openImportModal;
+window.submitImportStudents = submitImportStudents;
+window.closeImportModal     = closeImportModal;

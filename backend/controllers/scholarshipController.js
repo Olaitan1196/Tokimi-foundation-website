@@ -213,3 +213,24 @@ export const exportScholarships = async (req, res) => {
         res.status(500).json({ message: '❌ Server error', error: error.message });
     }
 };
+// ─────────────────────────────────────────────
+// 7. PUBLIC — SCHOLARSHIP IMPACT STATS
+// ─────────────────────────────────────────────
+export const getPublicScholarshipStats = async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT COUNT(DISTINCT school_id) AS schools_benefited,
+                    COUNT(*) AS total_scholarships
+             FROM scholarships`
+        );
+
+        res.status(200).json({
+            message: '✅ Stats retrieved successfully!',
+            schools_benefited: parseInt(result.rows[0].schools_benefited),
+            total_scholarships: parseInt(result.rows[0].total_scholarships)
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: '❌ Server error', error: error.message });
+    }
+};

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin.css">
 
-    <script src="../js/admin.js" defer></script>
+    <script src="../js/admin.js" type="module" defer></script>
 </head>
 <body>
 
@@ -89,8 +89,14 @@
             <a href="#" class="sidebar-link" data-section="students">
                 <span>👨‍🎓</span> Students
             </a>
+            <a href="#" class="sidebar-link" data-section="attendance">
+                <span>📅</span> Attendance
+            </a>
             <a href="#" class="sidebar-link" data-section="scholarships">
                 <span>🏆</span> Scholarships
+            </a>
+            <a href="#" class="sidebar-link" data-section="grants">
+                <span>🤝</span> Grants
             </a>
             <a href="#" class="sidebar-link" data-section="staff">
                 <span>👨‍💼</span> Staff
@@ -100,6 +106,11 @@
             <a href="#" class="sidebar-link" data-section="generator">
                 <span>🪪</span> ID & Certificates
             </a>
+
+            <div class="nav-section-label">Settings</div>
+            <a href="#" class="sidebar-link" data-section="lookups">
+                <span>⚙️</span> Schools & Classes
+            </a>    
 
             <div class="nav-section-label">Account</div>
             <a href="#" class="sidebar-link logout-link" id="logoutBtn">
@@ -218,17 +229,14 @@
                         <h2>👨‍🎓 Student Enrollment</h2>
                         <p>View and manage all enrolled students</p>
                     </div>
-                    <div style="display:flex;gap:10px;">
-                        <a href="enrollment.html"
-                            class="btn btn-orange btn-sm">
-                            ➕ Enroll Student
-                        </a>
-                        <button class="btn btn-outline-blue btn-sm"
-                            onclick="exportStudents()">
-                            📤 Export CSV
-                        </button>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <a href="enrollment.html" class="btn btn-orange btn-sm">➕ Enroll Student</a>
+                        <button class="btn btn-outline-blue btn-sm" onclick="openImportModal()">📥 Import CSV</button>
+                        <button class="btn btn-outline-blue btn-sm" onclick="exportStudents()">📤 Export CSV</button>
                     </div>
                 </div>
+
+                <div id="studentsAlertContainer"></div>
 
                 <!-- Batch Filter -->
                 <div class="admin-filters">
@@ -260,32 +268,114 @@
                 </div>
             </section>
 
-            <!-- ── SCHOLARSHIPS ── -->
+           <!-- ── SCHOLARSHIPS ── -->
             <section class="admin-section" id="section-scholarships">
                 <div class="section-header-row">
                     <div>
-                        <h2>🏆 Scholarships & Grants</h2>
-                        <p>View and manage all scholarship awards</p>
+                        <h2>🏆 Scholarships</h2>
+                        <p>Award and manage scholarships</p>
                     </div>
                     <div style="display:flex;gap:10px;">
-                        <a href="scholarship.html"
-                            class="btn btn-orange btn-sm">
-                            ➕ Add Award
-                        </a>
-                        <button class="btn btn-outline-blue btn-sm"
-                            onclick="exportScholarships()">
-                            📤 Export CSV
-                        </button>
+                        <button class="btn btn-orange btn-sm" onclick="openScholarshipModal()">➕ Award Scholarship</button>
+                        <button class="btn btn-outline-blue btn-sm" onclick="exportScholarships()">📤 Export CSV</button>
+                    </div>
+                </div>
+                <div id="scholarshipAlertContainer"></div>
+                <div class="admin-table-wrapper" id="scholarshipsTableWrapper">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading records...</p></div>
+                </div>
+            </section>
+
+            <!-- ── GRANTS ── -->
+            <section class="admin-section" id="section-grants">
+                <div class="section-header-row">
+                    <div>
+                        <h2>🤝 Grants</h2>
+                        <p>Award and manage grants</p>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-orange btn-sm" onclick="openGrantModal()">➕ Award Grant</button>
+                        <button class="btn btn-outline-blue btn-sm" onclick="exportGrants()">📤 Export CSV</button>
+                    </div>
+                </div>
+                <div id="grantAlertContainer"></div>
+                <div class="admin-table-wrapper" id="grantsTableWrapper">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading records...</p></div>
+                </div>
+            </section>
+
+            <!-- ── ATTENDANCE ── -->
+            <section class="admin-section" id="section-attendance">
+                <div class="section-header-row">
+                    <div>
+                        <h2>📅 Attendance</h2>
+                        <p>Mark daily attendance and export records</p>
                     </div>
                 </div>
 
-                <!--
-                    📌 EMPTY — records fetched from backend
-                -->
-                <div class="admin-table-wrapper" id="scholarshipsTableWrapper">
-                    <div class="loading-state">
-                        <div class="spinner"></div>
-                        <p>Loading records...</p>
+                <div id="attendanceAlertContainer"></div>
+
+                <!-- Mark Attendance -->
+                <div class="attendance-controls">
+                    <select id="attBatchSelect">
+                        <option value="">-- Select Batch --</option>
+                        <option value="Batch-A">Batch A</option>
+                        <option value="Batch-B">Batch B</option>
+                        <option value="Batch-C">Batch C</option>
+                        <option value="Batch-D">Batch D</option>
+                        <option value="Batch-E">Batch E</option>
+                    </select>
+                    <input type="date" id="attDate" />
+                    <button class="btn btn-blue btn-sm" onclick="loadAttendanceSheet()">📋 Load Sheet</button>
+                    <button class="btn btn-outline-blue btn-sm" onclick="markAllPresent()">✅ Mark All Present</button>
+                    <button class="btn btn-orange btn-sm" onclick="saveAttendance()">💾 Save Attendance</button>
+                </div>
+
+                <div class="admin-table-wrapper" id="attendanceSheetWrapper">
+                    <div class="empty-state" style="border:none;">
+                        <div class="ei">📅</div>
+                        <h3>Select a Batch and Date</h3>
+                        <p>Click "Load Sheet" to begin marking attendance.</p>
+                    </div>
+                </div>
+
+                <!-- Export / Import -->
+                <div class="attendance-io-grid">
+                    <div class="generator-card">
+                        <div class="generator-icon blue">📤</div>
+                        <h3>Export Attendance</h3>
+                        <p>Export a batch's attendance for a date range as a spreadsheet.</p>
+                        <div class="generator-form">
+                            <select id="expBatchSelect">
+                                <option value="">-- Select Batch --</option>
+                                <option value="Batch-A">Batch A</option>
+                                <option value="Batch-B">Batch B</option>
+                                <option value="Batch-C">Batch C</option>
+                                <option value="Batch-D">Batch D</option>
+                                <option value="Batch-E">Batch E</option>
+                            </select>
+                            <input type="date" id="expStartDate" />
+                            <input type="date" id="expEndDate" />
+                            <button class="btn btn-blue btn-sm" onclick="exportAttendance()">📤 Export CSV</button>
+                        </div>
+                    </div>
+
+                    <div class="generator-card">
+                        <div class="generator-icon green">📥</div>
+                        <h3>Import Attendance</h3>
+                        <p>Bulk-upload attendance from a spreadsheet for a batch.</p>
+                        <div class="generator-form">
+                            <select id="impBatchSelect">
+                                <option value="">-- Select Batch --</option>
+                                <option value="Batch-A">Batch A</option>
+                                <option value="Batch-B">Batch B</option>
+                                <option value="Batch-C">Batch C</option>
+                                <option value="Batch-D">Batch D</option>
+                                <option value="Batch-E">Batch E</option>
+                            </select>
+                            <input type="file" id="impFile" accept=".csv" />
+                            <button class="btn btn-sm" style="background:var(--success);color:white;" onclick="importAttendanceFile()">📥 Import CSV</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -319,6 +409,35 @@
                         <div class="spinner"></div>
                         <p>Loading staff...</p>
                     </div>
+                </div>
+            </section>
+
+            <!-- ── LOOKUP MANAGEMENT ── -->
+            <section class="admin-section" id="section-lookups">
+                <div class="section-header-row">
+                    <div>
+                        <h2>⚙️ Manage Schools & Classes</h2>
+                        <p>Add or remove dropdown options used across enrollment, scholarship and grant forms</p>
+                    </div>
+                </div>
+
+                <div class="lookup-tabs">
+                    <button class="lookup-tab-btn active" data-lookup="computer-training-schools" onclick="switchLookupTab('computer-training-schools')">Training Schools</button>
+                    <button class="lookup-tab-btn" data-lookup="computer-training-classes" onclick="switchLookupTab('computer-training-classes')">Training Classes</button>
+                    <button class="lookup-tab-btn" data-lookup="scholarship-schools" onclick="switchLookupTab('scholarship-schools')">Scholarship Schools</button>
+                    <button class="lookup-tab-btn" data-lookup="scholarship-classes" onclick="switchLookupTab('scholarship-classes')">Scholarship Classes</button>
+                    <button class="lookup-tab-btn" data-lookup="grant-schools" onclick="switchLookupTab('grant-schools')">Grant Schools</button>
+                </div>
+
+                <div id="lookupAlertContainer"></div>
+
+                <div class="lookup-add-row">
+                    <input type="text" id="lookupNewName" placeholder="Enter new name..." />
+                    <button class="btn btn-orange btn-sm" onclick="addLookupEntry()">➕ Add</button>
+                </div>
+
+                <div class="admin-table-wrapper" id="lookupTableWrapper">
+                    <div class="loading-state"><div class="spinner"></div><p>Loading...</p></div>
                 </div>
             </section>
 
@@ -384,7 +503,6 @@
 
                 </div>
             </section>
-
         </div>
     </div>
 </div>
@@ -401,6 +519,24 @@
     <div class="modal admin-modal" id="staffModalContent">
         <!-- Populated dynamically -->
     </div>
+</div>
+
+<!-- SCHOLARSHIP MODAL -->
+<div class="modal-overlay" id="scholarshipModal" style="display:none;">
+    <div class="modal admin-modal" id="scholarshipModalContent"></div>
+</div>
+
+<!-- GRANT MODAL -->
+<div class="modal-overlay" id="grantModal" style="display:none;">
+    <div class="modal admin-modal" id="grantModalContent"></div>
+</div>
+<!-- STUDENT EDIT MODAL -->
+<div class="modal-overlay" id="studentModal" style="display:none;">
+    <div class="modal admin-modal" id="studentModalContent"></div>
+</div>
+<!-- IMPORT STUDENTS MODAL -->
+<div class="modal-overlay" id="importModal" style="display:none;">
+    <div class="modal admin-modal" id="importModalContent"></div>
 </div>
 
 </body>

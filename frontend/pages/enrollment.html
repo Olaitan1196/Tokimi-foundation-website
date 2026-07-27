@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="../css/enrollment.css">
     <link rel="stylesheet" href="../css/index.css">
 
-    <script src="../js/main.js" defer></script>
-    <script src="../js/enrollment.js" defer></script>
+    <script src="../js/main.js" type="module" defer></script>
+    <script src="../js/enrollment.js" type="module" defer></script>
 </head>
 <body>
 
@@ -93,7 +93,49 @@
                         />
                         <span class="field-error" id="err-last_name"></span>
                     </div>
+
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="middle_name">Middle Name</label>
+                        <input type="text" id="middle_name" />
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender *</label>
+                        <select id="gender" required>
+                            <option value="">-- Select --</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="school_id">School *</label>
+                    <select id="school_id" required><option value="">-- Select School --</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="class_id">Class *</label>
+                    <select id="class_id" required><option value="">-- Select Class --</option></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="month">Month *</label>
+                <select id="month" required>
+                    <option value="">-- Select Month --</option>
+                    <option value="Jan">Jan</option><option value="Feb">Feb</option>
+                    <option value="Mar">Mar</option><option value="Apr">Apr</option>
+                    <option value="May">May</option><option value="Jun">Jun</option>
+                    <option value="Jul">Jul</option><option value="Aug">Aug</option>
+                    <option value="Sep">Sep</option><option value="Oct">Oct</option>
+                    <option value="Nov">Nov</option><option value="Dec">Dec</option>
+                </select>
+            </div>
 
                 <div class="form-row">
                     <div class="form-group">
@@ -157,65 +199,63 @@
             </form>
         </div>
 
-        <!-- RIGHT — STUDENT LIST -->
-        <div class="list-panel">
-            <div class="list-panel-header">
-                <h2>👨‍🎓 Enrolled Students</h2>
-                <p>All students currently enrolled in the program</p>
-            </div>
+        <!-- RIGHT — CHECK ENROLLMENT STATUS -->
+<div class="list-panel">
+    <div class="list-panel-header">
+        <h2>🔍 Check Enrollment Status</h2>
+        <p>Already enrolled? Check your status here.</p>
+    </div>
 
-            <!-- Filter & Search -->
-            <div class="list-controls">
-                <div class="list-search">
-                    <span>🔍</span>
-                    <input
-                        type="text"
-                        id="studentSearch"
-                        placeholder="Search students..."
-                    />
-                </div>
-                <div class="list-filters">
-                    <select id="batchFilter">
-                        <option value="">All Batches</option>
-                        <option value="Batch-A">Batch A</option>
-                        <option value="Batch-B">Batch B</option>
-                        <option value="Batch-C">Batch C</option>
-                        <option value="Batch-D">Batch D</option>
-                        <option value="Batch-E">Batch E</option>
-                    </select>
-                    <select id="yearFilter">
-                        <option value="">All Years</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
-                </div>
-            </div>
+    <div id="statusAlertContainer"></div>
 
-            <!-- Export Button -->
-            <div class="export-bar">
-                <span id="studentCount" class="student-count">
-                    Loading...
-                </span>
-                <button class="btn btn-outline-blue btn-sm" onclick="exportStudents()">
-                    📤 Export CSV
-                </button>
+    <form id="statusCheckForm" novalidate>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="chk_first_name">First Name *</label>
+                <input type="text" id="chk_first_name" required />
             </div>
-
-            <!-- Student Table -->
-            <!--
-                📌 EMPTY on purpose.
-                Student rows are fetched live from the backend.
-                Nothing is hardcoded here.
-            -->
-            <div class="table-wrapper" id="tableWrapper">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading students...</p>
-                </div>
+            <div class="form-group">
+                <label for="chk_last_name">Last Name *</label>
+                <input type="text" id="chk_last_name" required />
             </div>
         </div>
+        <div class="form-group">
+            <label for="chk_school_id">School *</label>
+            <select id="chk_school_id" required>
+                <option value="">-- Select School --</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="chk_year">Year *</label>
+                <select id="chk_year" required>
+                    <option value="">-- Select Year --</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="chk_month">Month *</label>
+                <select id="chk_month" required>
+                    <option value="">-- Select Month --</option>
+                    <option value="Jan">Jan</option><option value="Feb">Feb</option>
+                    <option value="Mar">Mar</option><option value="Apr">Apr</option>
+                    <option value="May">May</option><option value="Jun">Jun</option>
+                    <option value="Jul">Jul</option><option value="Aug">Aug</option>
+                    <option value="Sep">Sep</option><option value="Oct">Oct</option>
+                    <option value="Nov">Nov</option><option value="Dec">Dec</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-orange submit-btn" id="checkStatusBtn">
+            🔍 Check Status
+        </button>
+    </form>
+
+    <div id="statusResultWrapper"></div>
+</div>
 
     </div>
 </section>
@@ -269,13 +309,6 @@
         <span>Built with <span class="heart">♥</span> for students everywhere</span>
     </div>
 </footer>
-
-<!-- EDIT STUDENT MODAL -->
-<div class="modal-overlay" id="editModal" style="display:none;">
-    <div class="modal" id="editModalContent">
-        <!-- Populated dynamically -->
-    </div>
-</div>
 
 </body>
 </html>

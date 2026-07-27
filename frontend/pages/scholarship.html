@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="../css/scholarship.css">
     <link rel="stylesheet" href="../css/index.css">
 
-    <script src="../js/main.js" defer></script>
-    <script src="../js/scholarship.js" defer></script>
+    <script src="../js/main.js" type="module" defer></script>
+    <script src="../js/scholarship.js" type="module" defer></script>
 </head>
 <body>
 
@@ -48,162 +48,35 @@
     </div>
 </section>
 
-<!-- SUMMARY CARDS — live from backend -->
-<section class="section summary-section">
-    <!--
-        📌 EMPTY on purpose.
-        Summary cards are fetched live from the backend.
-    -->
-    <div class="summary-grid" id="summaryGrid">
-        <div class="loading-state" style="grid-column:1/-1;">
-            <div class="spinner"></div>
-            <p>Loading summary...</p>
-        </div>
-    </div>
-</section>
-
 <!-- MAIN CONTENT -->
 <section class="section" style="padding-top:0;">
-    <div class="scholarship-layout">
 
-        <!-- LEFT — AWARD FORM -->
-        <div class="form-panel">
-            <div class="form-panel-header">
-                <h2>🏆 Award Scholarship / Grant</h2>
-                <p>Select a student and fill in the award details</p>
-            </div>
+    <div class="scholarship-info">
+        <h2>🎓 How Our Scholarship Works</h2>
+        <p>
+            The Tokimi Foundation scholarship supports students in Nigerian public
+            secondary schools, with a focus on Osun State. Beneficiaries are chosen
+            based on a combination of <strong>academic performance</strong> and
+            <strong>financial need</strong>. Shortlisted students sit for a
+            qualifying examination, and those who pass are awarded the scholarship.
+        </p>
 
-            <div id="alertContainer"></div>
-
-            <form id="scholarshipForm" novalidate>
-
-                <!-- Student Selection -->
-                <div class="form-section-title">
-                    <span class="form-section-icon">👤</span>
-                    Student
-                </div>
-
-                <div class="form-group">
-                    <label for="student_id">Select Student *</label>
-                    <select id="student_id" name="student_id" required>
-                        <option value="">-- Select Enrolled Student --</option>
-                        <!--
-                            📌 Options are populated dynamically
-                            from the enrollment backend
-                        -->
-                    </select>
-                    <span class="field-error" id="err-student_id"></span>
-                </div>
-
-                <!-- Award Details -->
-                <div class="form-section-title">
-                    <span class="form-section-icon">💰</span>
-                    Award Details
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="type">Award Type *</label>
-                        <select id="type" name="type" required>
-                            <option value="">-- Select Type --</option>
-                            <option value="scholarship">🎓 Scholarship</option>
-                            <option value="grant">🤝 Grant</option>
-                        </select>
-                        <span class="field-error" id="err-type"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Amount (₦) *</label>
-                        <input
-                            type="number"
-                            id="amount"
-                            name="amount"
-                            placeholder="e.g. 50000"
-                            min="0"
-                            required
-                        />
-                        <span class="field-error" id="err-amount"></span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="date_awarded">Date Awarded *</label>
-                    <input
-                        type="date"
-                        id="date_awarded"
-                        name="date_awarded"
-                        required
-                    />
-                    <span class="field-error" id="err-date_awarded"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Description / Reason</label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        placeholder="e.g. Academic excellence award for outstanding performance in Batch A"
-                        rows="3"
-                    ></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-orange submit-btn" id="submitBtn">
-                    🏆 Award Scholarship
-                </button>
-
-            </form>
-        </div>
-
-        <!-- RIGHT — RECORDS LIST -->
-        <div class="list-panel">
-            <div class="list-panel-header">
-                <h2>📋 Scholarship Records</h2>
-                <p>All scholarship and grant awards</p>
-            </div>
-
-            <!-- Controls -->
-            <div class="list-controls">
-                <div class="list-search">
-                    <span>🔍</span>
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Search by student name..."
-                    />
-                </div>
-                <div class="list-filters">
-                    <select id="typeFilter">
-                        <option value="">All Types</option>
-                        <option value="scholarship">Scholarship</option>
-                        <option value="grant">Grant</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Export Bar -->
-            <div class="export-bar">
-                <span id="recordCount" class="record-count">Loading...</span>
-                <button
-                    class="btn btn-outline-blue btn-sm"
-                    onclick="exportScholarships()">
-                    📤 Export CSV
-                </button>
-            </div>
-
-            <!-- Records Table -->
-            <!--
-                📌 EMPTY on purpose.
-                Records are fetched live from the backend.
-                Nothing is hardcoded here.
-            -->
-            <div class="table-wrapper" id="tableWrapper">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading records...</p>
-                </div>
-            </div>
-        </div>
-
+        <h3>Who Can Qualify?</h3>
+        <ul>
+            <li>Currently enrolled in a public secondary school, primarily within Osun State</li>
+            <li>Demonstrates strong academic performance</li>
+            <li>Comes from a financially disadvantaged background</li>
+            <li>Successfully passes the foundation's qualifying examination</li>
+        </ul>
     </div>
+
+    <div class="summary-grid" id="statsGrid">
+        <div class="loading-state" style="grid-column:1/-1;">
+            <div class="spinner"></div>
+            <p>Loading impact stats...</p>
+        </div>
+    </div>
+
 </section>
 
 <!-- FOOTER -->
@@ -255,13 +128,6 @@
         <span>Built with <span class="heart">♥</span> for students everywhere</span>
     </div>
 </footer>
-
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal" style="display:none;">
-    <div class="modal" id="editModalContent">
-        <!-- Populated dynamically -->
-    </div>
-</div>
 
 </body>
 </html>

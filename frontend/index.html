@@ -1,319 +1,334 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tokimi Foundation — Keeping Dreams Alive</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="css/index.css">
-    <script defer src="js/index.js"></script>   
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <script src="/js/includes.js" defer></script>
+    <script defer src="js/index.js"></script>
     <script defer src="js/main.js"></script>
-</head>
-<body>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <div id="navbar-placeholder"></div>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-    <div class="logo">
-        <div class="logo-icon">T</div>
-        <div class="logo-words">
-            <span class="brand">Tokimi <span>Foundation</span></span>
-            <span class="script">keeping dreams alive</span>
-        </div>
-    </div>
-    <div class="nav-links" id="navLinks">
-        <a href="index.html" class="active">Home</a>
-        <a href="pages/about.html">About</a>
-        <a href="pages/courses.html">Courses</a>
-        <a href="pages/scholarship.html">Scholarships</a>
-        <a href="pages/news.html">News</a>
-        <a href="pages/staff.html">Staff</a>
-        <a href="pages/contact.html">Contact</a>
-        <a href="pages/enrollment.html" class="nav-cta">Enroll Now</a>
-    </div>
-    <div class="hamburger" id="hamburger">
-        <span></span><span></span><span></span>
-    </div>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-    <div class="hero-circle c1"></div>
-    <div class="hero-circle c2"></div>
-    <div class="hero-content">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-circle c1"></div>
+      <div class="hero-circle c2"></div>
+      <div class="hero-content">
         <span class="hero-script">keeping dreams alive</span>
-        <h1>Empowering Students Through<br><span class="hl">Computer Literacy</span></h1>
-        <p>Tokimi Foundation equips senior secondary students with essential digital skills — from hardware fundamentals to Microsoft Office and the Internet — opening doors to a brighter future.</p>
+        <h1>
+          Empowering Students Through<br /><span class="hl"
+            >Computer Literacy</span
+          >
+        </h1>
+        <p>
+          Tokimi Foundation equips senior secondary students with essential
+          digital skills — from hardware fundamentals to Microsoft Office and
+          the Internet — opening doors to a brighter future.
+        </p>
         <div class="hero-btns">
-            <a href="pages/enrollment.html" class="btn btn-orange">🎓 Enroll Today</a>
-            <a href="pages/about.html" class="btn btn-ghost">Learn More →</a>
+          <a href="pages/enrollment.html" class="btn btn-orange"
+            >🎓 Enroll Today</a
+          >
+          <a href="pages/about.html" class="btn btn-ghost">Learn More →</a>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- STATS BAR — live from backend -->
-<div class="stats-bar">
-    <div class="stat-item">
-        <div class="stat-number" id="statStudents"><div class="stat-skeleton"></div></div>
+    <!-- STATS BAR — live from backend -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-number" id="statStudents">
+          <div class="stat-skeleton"></div>
+        </div>
         <div class="stat-label">Students Enrolled</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-number" id="statBatches"><div class="stat-skeleton"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statBatches">
+          <div class="stat-skeleton"></div>
+        </div>
         <div class="stat-label">Batches Completed</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-number" id="statScholarships"><div class="stat-skeleton"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statScholarships">
+          <div class="stat-skeleton"></div>
+        </div>
         <div class="stat-label">Scholarships Awarded</div>
-    </div>
-    <div class="stat-item">
-        <div class="stat-number" id="statStaff"><div class="stat-skeleton"></div></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statStaff">
+          <div class="stat-skeleton"></div>
+        </div>
         <div class="stat-label">Staff Members</div>
+      </div>
     </div>
-</div>
 
-<!-- ABOUT — static mission content, no backend needed -->
-<section class="section">
-    <div class="about-grid">
+    <!-- ABOUT — static mission content, no backend needed -->
+    <section class="section">
+      <div class="about-grid">
         <div class="about-visual">
-            <span class="big-icon">🎯</span>
-            <h3>Our Mission</h3>
-            <p>Bridging the digital divide for senior secondary students through hands-on computer education and real-world digital skills training.</p>
-            <div class="about-badge">🏆 Non-Profit Organization</div>
+          <span class="big-icon">🎯</span>
+          <h3>Our Mission</h3>
+          <p>
+            Bridging the digital divide for senior secondary students through
+            hands-on computer education and real-world digital skills training.
+          </p>
+          <div class="about-badge">🏆 Non-Profit Organization</div>
         </div>
         <div class="about-text">
-            <span class="pre">Who We Are</span>
-            <h2>A Foundation Built on<br>Dreams & Digital Skills</h2>
-            <p>Tokimi Foundation is a not-for-profit organization dedicated to closing the technology gap among secondary school students. We believe every student deserves access to digital education regardless of background.</p>
-            <div class="points">
-                <div class="point">
-                    <div class="point-icon">💻</div>
-                    <div class="point-text">
-                        <strong>Hands-on Learning</strong>
-                        <span>Practical computer training in real lab environments</span>
-                    </div>
-                </div>
-                <div class="point">
-                    <div class="point-icon">🏆</div>
-                    <div class="point-text">
-                        <strong>Scholarship Opportunities</strong>
-                        <span>Financial support for outstanding and needy students</span>
-                    </div>
-                </div>
-                <div class="point">
-                    <div class="point-icon">📜</div>
-                    <div class="point-text">
-                        <strong>Certified Completion</strong>
-                        <span>Recognized certificates upon program completion</span>
-                    </div>
-                </div>
+          <span class="pre">Who We Are</span>
+          <h2>A Foundation Built on<br />Dreams & Digital Skills</h2>
+          <p>
+            Tokimi Foundation is a not-for-profit organization dedicated to
+            closing the technology gap among secondary school students. We
+            believe every student deserves access to digital education
+            regardless of background.
+          </p>
+          <div class="points">
+            <div class="point">
+              <div class="point-icon">💻</div>
+              <div class="point-text">
+                <strong>Hands-on Learning</strong>
+                <span
+                  >Practical computer training in real lab environments</span
+                >
+              </div>
             </div>
-            <a href="pages/about.html" class="btn btn-blue">Discover Our Story →</a>
+            <div class="point">
+              <div class="point-icon">🏆</div>
+              <div class="point-text">
+                <strong>Scholarship Opportunities</strong>
+                <span
+                  >Financial support for outstanding and needy students</span
+                >
+              </div>
+            </div>
+            <div class="point">
+              <div class="point-icon">📜</div>
+              <div class="point-text">
+                <strong>Certified Completion</strong>
+                <span>Recognized certificates upon program completion</span>
+              </div>
+            </div>
+          </div>
+          <a href="pages/about.html" class="btn btn-blue"
+            >Discover Our Story →</a
+          >
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- COURSES — static, curriculum doesn't change -->
-<section class="section section-alt">
-    <div class="sh">
+    <!-- COURSES — static, curriculum doesn't change -->
+    <section class="section section-alt">
+      <div class="sh">
         <span class="pre">What We Teach</span>
         <h2>Our Core Programs</h2>
-        <p>Comprehensive digital literacy courses designed specifically for senior secondary students</p>
-    </div>
-    <div class="courses-grid">
+        <p>
+          Comprehensive digital literacy courses designed specifically for
+          senior secondary students
+        </p>
+      </div>
+      <div class="courses-grid">
         <div class="course-card">
-            <div class="course-top blue">
-                <span class="course-icon">🖥️</span>
-                <h3>Computer Hardware & Software</h3>
+          <div class="course-top blue">
+            <span class="course-icon">🖥️</span>
+            <h3>Computer Hardware & Software</h3>
+          </div>
+          <div class="course-body">
+            <p>
+              Understand how computers work — from components to operating
+              systems and troubleshooting basics.
+            </p>
+            <div class="topic-tags">
+              <span class="topic-tag">CPU & Memory</span>
+              <span class="topic-tag">Input/Output</span>
+              <span class="topic-tag">OS Basics</span>
+              <span class="topic-tag">File Management</span>
             </div>
-            <div class="course-body">
-                <p>Understand how computers work — from components to operating systems and troubleshooting basics.</p>
-                <div class="topic-tags">
-                    <span class="topic-tag">CPU & Memory</span>
-                    <span class="topic-tag">Input/Output</span>
-                    <span class="topic-tag">OS Basics</span>
-                    <span class="topic-tag">File Management</span>
-                </div>
-            </div>
+          </div>
         </div>
         <div class="course-card">
-            <div class="course-top orange">
-                <span class="course-icon">📝</span>
-                <h3>Microsoft Word</h3>
+          <div class="course-top orange">
+            <span class="course-icon">📝</span>
+            <h3>Microsoft Word</h3>
+          </div>
+          <div class="course-body">
+            <p>
+              Master document creation, formatting, and professional writing
+              skills used in every workplace.
+            </p>
+            <div class="topic-tags">
+              <span class="topic-tag">Formatting</span>
+              <span class="topic-tag">Tables</span>
+              <span class="topic-tag">Mail Merge</span>
+              <span class="topic-tag">Templates</span>
             </div>
-            <div class="course-body">
-                <p>Master document creation, formatting, and professional writing skills used in every workplace.</p>
-                <div class="topic-tags">
-                    <span class="topic-tag">Formatting</span>
-                    <span class="topic-tag">Tables</span>
-                    <span class="topic-tag">Mail Merge</span>
-                    <span class="topic-tag">Templates</span>
-                </div>
-            </div>
+          </div>
         </div>
         <div class="course-card">
-            <div class="course-top teal">
-                <span class="course-icon">📊</span>
-                <h3>Microsoft Excel</h3>
+          <div class="course-top teal">
+            <span class="course-icon">📊</span>
+            <h3>Microsoft Excel</h3>
+          </div>
+          <div class="course-body">
+            <p>
+              Learn data entry, formulas, charts and spreadsheet management for
+              academic and business use.
+            </p>
+            <div class="topic-tags">
+              <span class="topic-tag">Formulas</span>
+              <span class="topic-tag">Charts</span>
+              <span class="topic-tag">Data Analysis</span>
+              <span class="topic-tag">Pivot Tables</span>
             </div>
-            <div class="course-body">
-                <p>Learn data entry, formulas, charts and spreadsheet management for academic and business use.</p>
-                <div class="topic-tags">
-                    <span class="topic-tag">Formulas</span>
-                    <span class="topic-tag">Charts</span>
-                    <span class="topic-tag">Data Analysis</span>
-                    <span class="topic-tag">Pivot Tables</span>
-                </div>
-            </div>
+          </div>
         </div>
         <div class="course-card">
-            <div class="course-top purple">
-                <span class="course-icon">📽️</span>
-                <h3>Microsoft PowerPoint</h3>
+          <div class="course-top purple">
+            <span class="course-icon">📽️</span>
+            <h3>Microsoft PowerPoint</h3>
+          </div>
+          <div class="course-body">
+            <p>
+              Create compelling presentations with slides, animations and
+              professional design techniques.
+            </p>
+            <div class="topic-tags">
+              <span class="topic-tag">Slide Design</span>
+              <span class="topic-tag">Animations</span>
+              <span class="topic-tag">Transitions</span>
+              <span class="topic-tag">Delivery</span>
             </div>
-            <div class="course-body">
-                <p>Create compelling presentations with slides, animations and professional design techniques.</p>
-                <div class="topic-tags">
-                    <span class="topic-tag">Slide Design</span>
-                    <span class="topic-tag">Animations</span>
-                    <span class="topic-tag">Transitions</span>
-                    <span class="topic-tag">Delivery</span>
-                </div>
-            </div>
+          </div>
         </div>
         <div class="course-card">
-            <div class="course-top mix">
-                <span class="course-icon">🌐</span>
-                <h3>Internet & Digital Skills</h3>
+          <div class="course-top mix">
+            <span class="course-icon">🌐</span>
+            <h3>Internet & Digital Skills</h3>
+          </div>
+          <div class="course-body">
+            <p>
+              Navigate the web safely, use email professionally and leverage
+              online tools for research.
+            </p>
+            <div class="topic-tags">
+              <span class="topic-tag">Web Browsing</span>
+              <span class="topic-tag">Email</span>
+              <span class="topic-tag">Online Safety</span>
+              <span class="topic-tag">Research</span>
             </div>
-            <div class="course-body">
-                <p>Navigate the web safely, use email professionally and leverage online tools for research.</p>
-                <div class="topic-tags">
-                    <span class="topic-tag">Web Browsing</span>
-                    <span class="topic-tag">Email</span>
-                    <span class="topic-tag">Online Safety</span>
-                    <span class="topic-tag">Research</span>
-                </div>
-            </div>
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- LIVE STATS — fetched from backend -->
-<section class="section section-dark">
-    <div class="sh">
+    <!-- LIVE STATS — fetched from backend -->
+    <section class="section section-dark">
+      <div class="sh">
         <span class="pre">Our Impact</span>
         <h2>The Numbers Speak</h2>
         <p>Real-time data showing the reach of Tokimi Foundation</p>
-    </div>
-    <div class="live-stats-grid" id="liveStatsGrid">
-        <div class="loading-state" style="grid-column:1/-1;">
-            <div class="spinner" style="border-color:rgba(255,255,255,0.2);border-top-color:var(--accent);"></div>
-            <p style="color:rgba(255,255,255,0.6);margin-top:14px;">Loading live statistics...</p>
+      </div>
+      <div class="live-stats-grid" id="liveStatsGrid">
+        <div class="loading-state" style="grid-column: 1/-1">
+          <div
+            class="spinner"
+            style="
+              border-color: rgba(255, 255, 255, 0.2);
+              border-top-color: var(--accent);
+            "
+          ></div>
+          <p style="color: rgba(255, 255, 255, 0.6); margin-top: 14px">
+            Loading live statistics...
+          </p>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- NEWS — fetched from backend -->
-<section class="section">
-    <div class="sh">
+    <!-- NEWS — fetched from backend -->
+    <section class="section">
+      <div class="sh">
         <span class="pre">Stay Informed</span>
         <h2>Latest News & Updates</h2>
         <p>Stay connected with everything happening at Tokimi Foundation</p>
-    </div>
-    <!--
+      </div>
+      <!--
         📌 IMPORTANT: This container is intentionally EMPTY.
         News cards are ONLY rendered when an admin posts 
         something via the backend API.
         Nothing is hardcoded here.
     -->
-    <div class="news-grid" id="newsGrid">
+      <div class="news-grid" id="newsGrid">
         <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading latest news...</p>
+          <div class="spinner"></div>
+          <p>Loading latest news...</p>
         </div>
-    </div>
-    <div style="text-align:center;margin-top:40px;">
-        <a href="pages/news.html" class="btn btn-outline-blue">View All News →</a>
-    </div>
-</section>
+      </div>
+      <div style="text-align: center; margin-top: 40px">
+        <a href="pages/news.html" class="btn btn-outline-blue"
+          >View All News →</a
+        >
+      </div>
+    </section>
 
-<!-- STAFF PREVIEW — fetched from backend -->
-<section class="section section-alt">
-    <div class="sh">
+    <!-- STAFF PREVIEW — fetched from backend -->
+    <section class="section section-alt">
+      <div class="sh">
         <span class="pre">Meet the Team</span>
         <h2>Our Dedicated Staff</h2>
         <p>The passionate people behind Tokimi Foundation</p>
-    </div>
-    <!--
+      </div>
+      <!--
         📌 IMPORTANT: This container is intentionally EMPTY.
         Staff cards are ONLY rendered when staff members
         are added via the backend API.
         Nothing is hardcoded here.
     -->
-    <div class="staff-grid" id="staffGrid">
+      <div class="staff-grid" id="staffGrid">
         <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Loading staff members...</p>
+          <div class="spinner"></div>
+          <p>Loading staff members...</p>
         </div>
-    </div>
-    <div style="text-align:center;margin-top:40px;">
-        <a href="pages/staff.html" class="btn btn-outline-blue">View All Staff →</a>
-    </div>
-</section>
+      </div>
+      <div style="text-align: center; margin-top: 40px">
+        <a href="pages/staff.html" class="btn btn-outline-blue"
+          >View All Staff →</a
+        >
+      </div>
+    </section>
 
-<!-- CTA -->
-<section class="cta-section">
-    <div class="cta-content">
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="cta-content">
         <span class="cta-script">Take the first step</span>
         <h2>Ready to Start Your Digital Journey?</h2>
-        <p>Join hundreds of students who have already transformed their futures through our computer literacy program. Enrollment is free for qualifying students.</p>
+        <p>
+          Join hundreds of students who have already transformed their futures
+          through our computer literacy program. Enrollment is free for
+          qualifying students.
+        </p>
         <div class="cta-btns">
-            <a href="pages/enrollment.html" class="btn btn-orange">🎓 Enroll Now</a>
-            <a href="pages/contact.html" class="btn btn-ghost">📞 Contact Us</a>
+          <a href="pages/enrollment.html" class="btn btn-orange"
+            >🎓 Enroll Now</a
+          >
+          <a href="pages/contact.html" class="btn btn-ghost">📞 Contact Us</a>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- FOOTER -->
-<footer class="footer">
-    <div class="footer-grid">
-        <div class="footer-brand">
-            <span class="fname">Tokimi <span>Foundation</span></span>
-            <span class="ftag">keeping dreams alive</span>
-            <p>A not-for-profit organization dedicated to empowering senior secondary students through quality computer literacy education.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Quick Links</h4>
-            <ul>
-                <li><a href="index.html">🏠 Home</a></li>
-                <li><a href="pages/about.html">ℹ️ About Us</a></li>
-                <li><a href="pages/courses.html">📚 Courses</a></li>
-                <li><a href="pages/news.html">📰 News</a></li>
-                <li><a href="pages/staff.html">👥 Our Staff</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Programs</h4>
-            <ul>
-                <li><a href="pages/courses.html">💻 Hardware & Software</a></li>
-                <li><a href="pages/courses.html">📝 Microsoft Word</a></li>
-                <li><a href="pages/courses.html">📊 Microsoft Excel</a></li>
-                <li><a href="pages/courses.html">📽️ PowerPoint</a></li>
-                <li><a href="pages/courses.html">🌐 Internet Skills</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Contact Us</h4>
-            <div class="contact-row"><span class="ci">📍</span><span>123 Foundation Road,<br>Lagos, Nigeria</span></div>
-            <div class="contact-row"><span class="ci">📞</span><span>+234 800 000 0000</span></div>
-            <div class="contact-row"><span class="ci">📧</span><span>info@tokimifoundation.org</span></div>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <span>© 2025 Tokimi Foundation. All rights reserved.</span>
-        <span>Built with <span class="heart">♥</span> for students everywhere</span>
-    </div>
-</footer>
-</body>
+    <!-- FOOTER -->
+    <div id="footer-placeholder"></div>
+  </body>
 </html>

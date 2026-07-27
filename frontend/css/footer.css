@@ -1,0 +1,29 @@
+.footer { background:var(--primary-dark); color:rgba(255,255,255,0.75); padding:3.75rem 6% 1.5rem; position:relative; }
+.footer::before { content:''; position:absolute; top:0; left:0; right:0; height:0.25rem; background:linear-gradient(to right,var(--accent),var(--accent-light),var(--accent)); }
+.footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:2.5rem; margin-bottom:3rem; }
+.footer-brand .fname { font-family:'Montserrat',sans-serif; font-size:1.25rem; font-weight:900; color:white; display:block; margin-bottom:0.125rem; }
+.footer-brand .fname span { color:var(--accent); }
+.footer-brand .ftag { font-family:'Dancing Script',cursive; font-size:1rem; color:var(--accent); margin-bottom:1rem; display:block; }
+.footer-brand p { font-size:0.84375rem; line-height:1.9; font-weight:300; max-width:18.75rem; }
+.footer-col h4 { font-family:'Montserrat',sans-serif; font-size:0.75rem; font-weight:700; color:white; text-transform:uppercase; letter-spacing:0.075rem; margin-bottom:1.125rem; padding-bottom:0.625rem; border-bottom:0.125rem solid var(--accent); display:inline-block; }
+.footer-col ul li { margin-bottom:0.625rem; }
+.footer-col ul li a { color:rgba(255,255,255,0.6); font-size:0.84375rem; transition:var(--ease); display:inline-flex; align-items:center; gap:0.375rem; }
+.footer-col ul li a:hover { color:var(--accent); padding-left:0.25rem; }
+.contact-row { display:flex; gap:0.625rem; align-items:flex-start; margin-bottom:0.75rem; font-size:0.84375rem; }
+.contact-row .ci { font-size:0.9375rem; flex-shrink:0; margin-top:0.125rem; }
+.footer-bottom { border-top:0.0625rem solid rgba(255,255,255,0.08); padding-top:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; font-size:0.8125rem; color:rgba(255,255,255,0.4); }
+.footer-bottom .heart { color:var(--accent); }
+
+@media (max-width:992px) {
+    .footer-grid { grid-template-columns:1fr 1fr; }
+}
+
+@media (max-width:768px) {
+    .footer-grid { grid-template-columns:1fr; }
+    .footer-bottom { flex-direction:column; text-align:center; }
+}
+
+@media (max-width:480px) {
+    .footer { padding:2.5rem 5% 1.25rem; }
+    .footer-brand p { max-width:100%; }
+}

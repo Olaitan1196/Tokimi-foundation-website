@@ -36,9 +36,10 @@ const allowedOrigins = [
 // 5. Middleware
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (Postman, mobile apps)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Allow any localhost/127.0.0.1 port during local development
+        if (/^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
             return callback(null, true);
         }
         return callback(new Error('Not allowed by CORS'));
